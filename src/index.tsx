@@ -17,8 +17,8 @@ root.render(
 // to log results (for example: reportWebVitals(console.log))
 // or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
 reportWebVitals();
-
-function registerUser(url = "", registerdata = {}) {
+/*
+export function registerUser(url = "", registerdata = {}) {
   const myHeaders = new Headers({
       'Content-Type': 'application/json',
   });
@@ -42,9 +42,33 @@ function registerUser(url = "", registerdata = {}) {
     }).catch(error => {
       console.error(error);
     });
+  }*/
+
+  export async function registerUser(url = "", registerdata = {}) {
+    const myHeaders = new Headers({
+      'Content-Type': 'application/json',
+    });
+  
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: myHeaders,
+        body: JSON.stringify(registerdata)
+      });
+    
+      if (response.status === 201) {
+        const data = await response.json();
+        console.debug(data);
+        return data;
+      } else {
+        throw new Error('Létező felhasználó');
+      }
+    } catch(error) {
+      console.error(error);
+    }
   }
 
-function loginUser(url = "", logindata = {}) {
+export function loginUser(url = "", logindata = {}) {
   const myHeaders = new Headers({
       'Content-Type': 'application/json',
   });
@@ -56,6 +80,7 @@ function loginUser(url = "", logindata = {}) {
   })
   
   .then(response => {
+    console.log(logindata)
       if (response.status === 201) {
         return response.json();
       } else {
@@ -70,7 +95,7 @@ function loginUser(url = "", logindata = {}) {
     });
   }
 
-function getUsers(url = "", authtoken = "") {
+export function getUsers(url = "", authtoken = "") {
   const myHeaders = new Headers({
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ' + authtoken
@@ -144,4 +169,3 @@ loginUser("http://localhost:5000/user/login", logindata).then((data) => {
   //localStorage.removeItem('accesstoken');
 });
 */
-export default registerUser;

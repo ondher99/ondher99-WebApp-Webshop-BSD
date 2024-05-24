@@ -1,4 +1,5 @@
 import React, { ChangeEvent, useState } from "react";
+import { registerUser } from "../index";
 
 import './Registration.css';
 
@@ -77,11 +78,19 @@ function RegistrationForm() {
         }
       };
 
-    const submitForm = (event: { preventDefault: () => void; }) => {
-      event.preventDefault();
-      // send formState to your server
-      console.log(formState);
-    };
+      const submitForm = (event: { preventDefault: () => void; }) => {
+        event.preventDefault();
+        
+        registerUser('http://localhost:5000/user', formState)
+          .then(response => {
+            console.log(response);
+            // handle registration success. For example, redirecting to login page, showing success message etc.
+          })
+          .catch(error => {
+            console.error('There was an error:', error);
+            // handle registration failure. For example, showing error message to user etc.
+          });
+      };
   
     return (
       <div>
