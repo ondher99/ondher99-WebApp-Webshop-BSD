@@ -69,12 +69,27 @@ const LoginForm = () => {
       const response = await loginUser('http://localhost:5000/user/login', payload);
       console.log(response);
       // handle login success, receive and store token etc.
+      localStorage.setItem('accesstoken', response);
     } catch (error) {
       // handle login error
       console.error(error);
     }
   };
+  /*
+  loginUser("http://localhost:5000/user/login", logindata).then((data) => {
+  console.log(data); // JSON data parsed by `data.json()` call
+  localStorage.setItem('accesstoken', data['accessToken']);
+  var accessToken = localStorage.getItem('accesstoken');
+  if (accessToken === null){
+    accessToken = "";
+  }
+  var getDataResponse = getUsers("http://localhost:5000/user", accessToken);
+  console.log(getDataResponse);
 
+  //törölni accesstokent sessionböl:
+  //localStorage.removeItem('accesstoken');
+});
+*/
   return (
     <div>
       <h1>Login Form</h1>

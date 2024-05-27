@@ -8,6 +8,7 @@ import {
   Link
 } from 'react-router-dom';
 import LoginForm from "../Login/Login";
+import ChangePasswordForm from "../ChangePassword/ChangePassword";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
           <Route path="/" element={<HomeScreen />} />
           <Route path="/Registration" element={<RegistrationForm />} />
           <Route path="/Login" element={<LoginForm />} />
+          <Route path="/ChangePassword" element={<ChangePasswordForm />} />
           {/* Define other routes */}
         </Routes>
       </div>

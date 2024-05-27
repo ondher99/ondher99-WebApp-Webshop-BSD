@@ -70,6 +70,36 @@ function loginUser(url = "", logindata = {}) {
     });
   }
 
+  function changePassword(url = "", passwordChangeData = {}) {
+    const myHeaders = new Headers({
+        'Content-Type': 'application/json',
+    });
+    
+    return fetch(url, {
+      method: 'PATCH',
+      headers: myHeaders,
+      body: JSON.stringify(passwordChangeData)
+    })
+    
+    .then(response => {
+      if (response.status == 204) {
+        return response.json();
+      } else if (response.status == 403) {
+        throw new Error('Hibás régi jelszó');
+      } else if (response.status == 404) {
+        throw new Error('A felhasználó nem található');
+      } else {
+        throw new Error('A régi és új jelszó nem egyezhet meg');
+      }
+    })
+    .then(response => {
+      console.debug(response);
+      return response;
+    }).catch(error => {
+      console.error(error);
+    });
+    }
+
 function getUsers(url = "", authtoken = "") {
   const myHeaders = new Headers({
       'Content-Type': 'application/json',
