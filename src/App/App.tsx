@@ -8,28 +8,54 @@ import {
   Link
 } from 'react-router-dom';
 import LoginForm from "../Login/Login";
+import Profile from '../Profile/Profile';
+import { UserProvider } from '../Profile/UserContext';
+import ChangePasswordForm from "../ChangePassword/ChangePassword";
 
-function App() {
+/*function App() {
   return (
     <Router>
       <div>
-        {/* Navigation */}
         <nav>
           <Link to="/">Home</Link>
-          {/* Add other links */}
         </nav>
 
-        {/* Routes */}
         <Routes>
           <Route path="/" element={<HomeScreen />} />
           <Route path="/Registration" element={<RegistrationForm />} />
           <Route path="/Login" element={<LoginForm />} />
-          {/* Define other routes */}
+          <Route path="/ChangePassword" element={<ChangePasswordForm />} />
         </Routes>
       </div>
     </Router>
     
   );
 }
+
+export default App;*/
+
+const App = () => {
+  return (
+    <UserProvider> {/* Add UserProvider here */}
+      <Router>
+        <div>
+          <nav style={{ marginBottom: '20px' }}>
+            <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', gap: '20px' }}>
+              <li><Link to="/">Home</Link></li>
+            </ul>
+          </nav>
+          <Routes>
+            <Route path="/" element={<HomeScreen/>} />
+            <Route path="/Login" element={<LoginForm />} />
+            <Route path="/Registration" element={<RegistrationForm />} />
+            <Route path="/Profile" element={<Profile />} />
+            <Route path="/ChangePassword" element={<ChangePasswordForm />} />
+            {/* You can add a Route here for a default or home page */}
+          </Routes>
+        </div>
+      </Router>
+    </UserProvider>
+  );
+};
 
 export default App;
