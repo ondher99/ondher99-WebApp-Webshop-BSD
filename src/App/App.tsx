@@ -12,28 +12,6 @@ import Profile from '../Profile/Profile';
 import { UserProvider } from '../Profile/UserContext';
 import ChangePasswordForm from "../ChangePassword/ChangePassword";
 
-/*function App() {
-  return (
-    <Router>
-      <div>
-        <nav>
-          <Link to="/">Home</Link>
-        </nav>
-
-        <Routes>
-          <Route path="/" element={<HomeScreen />} />
-          <Route path="/Registration" element={<RegistrationForm />} />
-          <Route path="/Login" element={<LoginForm />} />
-          <Route path="/ChangePassword" element={<ChangePasswordForm />} />
-        </Routes>
-      </div>
-    </Router>
-    
-  );
-}
-
-export default App;*/
-
 const App = () => {
   return (
     <UserProvider> {/* Add UserProvider here */}
