@@ -1,0 +1,8 @@
+button {
+    background-color: gray;
+    /* other basic styles */
+  }
+  
+  button.active {
+    background-color: blue;
+  }
