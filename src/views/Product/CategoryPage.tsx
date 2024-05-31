@@ -24,39 +24,6 @@ interface CategoryOption {
   image: string;
 }
 
-const categoriesOptions: CategoryOption[] = [
-  {
-    id: "cameras-photo",
-    name: "Cameras & Photo",
-    image: "https://picsum.photos/400/400.jpg",
-  },
-  {
-    id: "cellphones-accessories",
-    name: "Cellphones & Accessories",
-    image: "https://picsum.photos/400/400.jpg",
-  },
-  {
-    id: "computers-tablets",
-    name: "Computers & Tablets",
-    image: "https://picsum.photos/400/400.jpg",
-  },
-  {
-    id: "tv-audio-surveillance",
-    name: "TV, Audio & Surveillance",
-    image: "https://picsum.photos/400/400.jpg",
-  },
-  {
-    id: "vehicle-electronics-gps",
-    name: "Vehicle Electronics & GPS",
-    image: "https://picsum.photos/400/400.jpg",
-  },
-  {
-    id: "video-games-consoles",
-    name: "Video Games & Consoles",
-    image: "https://picsum.photos/400/400.jpg",
-  },
-];
-
 const orderByOptions = [
   { value: "name.ASC", label: "Name (A to Z)" },
   { value: "name.DESC", label: "Name (Z to A)" },
@@ -67,6 +34,8 @@ const orderByOptions = [
 ];
 
 const CategoryPage = () => {
+  const [categories, setCategories] = useState<CategoryOption[]>([]);
+
   const [data, setData] = useState<Data | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [selectedOrderBy, setSelectedOrderBy] = useState<string>("");
@@ -79,6 +48,21 @@ const CategoryPage = () => {
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(6);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const response = await axios.get(
+          "http://localhost:5000/products/categories"
+        );
+        setCategories(response.data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -187,7 +171,7 @@ const CategoryPage = () => {
             onChange={handleCategoryChange}
           >
             <option value="">All Categories</option>
-            {categoriesOptions.map((category) => (
+            {categories!.map((category) => (
               <option key={category.id} value={category.id}>
                 {category.name}
               </option>
