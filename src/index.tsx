@@ -68,10 +68,35 @@ function registerUser(url = "", registerdata = {}) {
       });
     }
 
-  
+    export function changeData(url = "", registerdata = {}) {
+      const authtoken = localStorage.getItem('accessToken')
+      const myHeaders = new Headers({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + authtoken
+      });
+      
+      return fetch(url, {
+        method: 'PUT',
+        headers: myHeaders,
+        body: JSON.stringify(registerdata)
+      })
+      
+      .then(response => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error('Hiányzó vagy érvénytelen auth token - belépés szükséges');
+          }
+        })
+        .then(response => {
+          console.debug(response);
+          return response;
+        }).catch(error => {
+          console.error(error);
+        });
+      }
 
 export function getUsers() {
-  // Retrieve the token from localStorage within the function
   const authtoken = localStorage.getItem('accessToken');
   
   if (!authtoken) {
@@ -89,7 +114,7 @@ export function getUsers() {
   })
   .then(response => {
     if (response.status === 200) {
-      return response.json(); // if the response is successful, parse the JSON body
+      return response.json();
     } else {
       throw new Error('Something went wrong on the api server!');
     }
@@ -100,7 +125,7 @@ export function getUsers() {
   })
   .catch(error => {
     console.error(error);
-    throw error; // Re-throw the error for further handling
+    throw error;
   });
 }
   

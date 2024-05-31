@@ -11,6 +11,7 @@ import LoginForm from "../Login/Login";
 import Profile from '../Profile/Profile';
 import { UserProvider } from '../Profile/UserContext';
 import ChangePasswordForm from "../ChangePassword/ChangePassword";
+import ChangeProfileDataForm from "../ChangeProfile/ChangeProfileData";
 
 const App = () => {
   return (
@@ -28,7 +29,7 @@ const App = () => {
             <Route path="/Registration" element={<RegistrationForm />} />
             <Route path="/Profile" element={<Profile />} />
             <Route path="/ChangePassword" element={<ChangePasswordForm />} />
-            {/* You can add a Route here for a default or home page */}
+            <Route path="/ChangeProfile" element={<ChangeProfileDataForm />} />
           </Routes>
         </div>
       </Router>

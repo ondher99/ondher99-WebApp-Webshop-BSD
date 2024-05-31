@@ -26,9 +26,8 @@ function RegistrationForm() {
         zip: string;
         taxNumber: string;
       };
-      [key: string]: any; // To make TypeScript accept dynamic properties
+      [key: string]: any;
     }
-  
     const initialFormState: IFormState = {
       username: '',
       password: '',
@@ -84,11 +83,9 @@ function RegistrationForm() {
         registerUser('http://localhost:5000/user', formState)
           .then(response => {
             console.log(response);
-            // handle registration success. For example, redirecting to login page, showing success message etc.
           })
           .catch(error => {
             console.error('There was an error:', error);
-            // handle registration failure. For example, showing error message to user etc.
           });
       };
   
@@ -96,7 +93,7 @@ function RegistrationForm() {
       <div>
         <h1>Registration Form</h1>
         <form onSubmit={submitForm}>
-
+          
           <label>Username (Email): <input type='email' name='username' value={formState.username} onChange={handleInputChange} required /></label>
           <label>Password: <input type='password' name='password' value={formState.password} onChange={handleInputChange} required /></label>
           <label>Confirm Password: <input type='password' name='passwordConfirm' value={formState.passwordConfirm} onChange={handleInputChange} required /></label>

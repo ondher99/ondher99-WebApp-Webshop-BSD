@@ -1,51 +1,41 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
 import { getUsers } from '../index';
 
 function Profile() {
-  const { user, setUser } = useUser(); // Use the context to access and set the user data
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(!user); // If there's no user data, we're loading
-
+  const [isLoading, setIsLoading] = useState(!user);
   useEffect(() => {
     if (!user) {
       setIsLoading(true);
-      getUsers() // Your user profile endpoint
+      getUsers()
         .then(userData => {
-          setUser(userData); // Update user context with the fetched data
-          setIsLoading(false); // Set loading to false once the data is fetched
+          setUser(userData);
+          setIsLoading(false);
         })
         .catch(error => {
           console.error('Failed to fetch user:', error);
-          setIsLoading(false); // Set loading to false also in case of an error
-          navigate('/login'); // If there's an error, redirect back to login
+          setIsLoading(false);
+          navigate('/login');
         });
     }
   }, [navigate, setUser, user]);
-
   const handleLogout = () => {
-    setUser(null); // Clear the user from the context state
-    localStorage.removeItem('accessToken'); // Remove the accessToken from local storage
-    navigate('/login'); // Redirect user to the login page
+    setUser(null);
+    localStorage.removeItem('accessToken');
+    navigate('/login');
   };
-
-  // If we are loading, show a loading message
   if (isLoading) {
     return <div>Loading user data...</div>;
   }
-
   if (!user) {
     return <div>No user is loged in...</div>;
   }
-
-  // `user` is guaranteed to be set
   const { userId, email, firstName, lastName, shippingAddress, billingAddress } = user;
-
-  // Destructure shipping and billing addresses...
   const { name: shippingName, country: shippingCountry, city: shippingCity, street: shippingStreet, zip: shippingZip, phoneNumber } = shippingAddress;
   const { name: billingName, country: billingCountry, city: billingCity, street: billingStreet, zip: billingZip, taxNumber } = billingAddress;
-  
   return (
     <div>
       <h2>Your Profile</h2>
@@ -69,6 +59,7 @@ function Profile() {
       <p>Street: {billingStreet}</p>
       <p>ZIP: {billingZip}</p>
       <p>Tax Number: {taxNumber}</p>
+      <li><Link to='../ChangeProfile'>Change Profile Data</Link></li>
       <button onClick={handleLogout}>Logout</button>
     </div>
   );

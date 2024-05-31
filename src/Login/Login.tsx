@@ -1,75 +1,100 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { loginUser, getUsers } from '../index';
-import { useUser } from '../Profile/UserContext';
+import { useUser, getUsers } from '../Profile/UserContext';
 
 const LoginForm = () => {
   const { setUser } = useUser();
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
-  const handleSubmit = async (event: { preventDefault: () => void; }) => {
+  interface LoginData {
+    username: string;
+    password: string;
+  }
+  async function loginUser(logindata: LoginData) {
+    const myHeaders = new Headers({
+      'Content-Type': 'application/json',
+    });
+  
+    const response = await fetch('http://localhost:5000/user/login', {
+      method: 'POST',
+      headers: myHeaders,
+      body: JSON.stringify(logindata)
+    });
+  
+    if (response.ok) {
+      return await response.json();
+    } else {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'Login failed');
+    }
+  }
+  function validateEmail(inputEmail: string) {
+    const regex = /^\S+@\S+\.\S+$/;
+    if(!regex.test(inputEmail)){
+        setEmailError('Invalid email format');
+        return false;
+    }
+    setEmailError('');
+    return true;
+  }
+  function ValidatePassword(inputPassword: string) {
+    const regex = /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    if(!regex.test(inputPassword)){
+      setPasswordError('Invalid password format');
+      return false;
+  }
+  setPasswordError('');
+  return true;
+  }
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     const payload = {
       username: username.trim(),
       password: password.trim(),
     };
-    console.log(username)
-    console.log(password)
-
     try {
       const response = await loginUser(payload);
-      
-      // Assuming the token is in the response and called 'accessToken'
       if (response.accessToken) {
-        // Save the access token in localStorage
         localStorage.setItem('accessToken', response.accessToken);
-        
-        try {
-          const userData = await getUsers();
-          
-          if (userData) {
-            setUser(userData); // Save userData in UserContext
-          
-            // Navigate to the /profile page after successfully fetching and setting user data
-            navigate('/');
-          } else {
-            // Handle the case when userData is null or undefined
-            throw new Error('No userData received');
-          }
-        } catch (userDataError) {
-          console.error('Could not fetch user data:', userDataError);
-          navigate('/registration');
-          // Handle error by showing user feedback or redirecting
+        const userData = await getUsers();
+        if (userData) {
+          setUser(userData);
+          navigate('/profile');
+        } else {
+          alert('No user data received');
         }
-
       } else {
-        // Handle the case where there is no token in the response
-        console.error('Login succeeded but no access token was returned');
+        alert('Login succeeded but no access token was returned');
       }
     } catch (error) {
-      // Handle any errors that occurred during login
-      console.error(error);
+      if (error instanceof Error) {
+        alert(`Failed to login: ${error.message}. Wrong username or password.`);
+      } else {
+        alert('Failed to login due to an unexpected error.');
+      }
     }
   };
-return (
-  <div>
-    <h1>Login Form</h1>
-    <form onSubmit={handleSubmit}>
-      <label>
-        Username (Email):
-        <input type="email" name="username" value={username} onChange={e => setUsername(e.target.value)} required />
-      </label>
-      <label>
-        Password:
-        <input type="password" name="password" value={password} onChange={e => setPassword(e.target.value)} required />
-      </label>
-      <button type="submit">Login</button>
-    </form>
-  </div>
-);
+  return (
+    <div>
+      <h1>Login Form</h1>
+      <form onSubmit={handleSubmit}>
+        <label>
+          Username (Email):
+          <input type="email" name="username" value={username} onChange={e => setUsername(e.target.value)} onBlur={e => validateEmail(e.target.value)} required />
+        </label>
+        {emailError && <p style={{color: 'red'}}>{emailError}</p>}
+        <label>
+          Password:
+          <input type="password" name="password" value={password} onChange={e => setPassword(e.target.value)} onBlur={(e) => {ValidatePassword(e.target.value)}} required />
+        </label>
+        {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
+        <button type="submit">Login</button>
+      </form>
+    </div>
+  );
 };
-
 export default LoginForm;
