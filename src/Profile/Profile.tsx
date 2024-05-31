@@ -1,51 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useUser } from './UserContext';
-import { getUsers } from '../index';
+import { useUser } from './UserContext'; // Adjust the import path as needed
 
 function Profile() {
-  const { user, setUser } = useUser(); // Use the context to access and set the user data
+  const { user, setUser } = useUser();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(!user); // If there's no user data, we're loading
 
-  useEffect(() => {
-    if (!user) {
-      setIsLoading(true);
-      getUsers() // Your user profile endpoint
-        .then(userData => {
-          setUser(userData); // Update user context with the fetched data
-          setIsLoading(false); // Set loading to false once the data is fetched
-        })
-        .catch(error => {
-          console.error('Failed to fetch user:', error);
-          setIsLoading(false); // Set loading to false also in case of an error
-          navigate('/login'); // If there's an error, redirect back to login
-        });
-    }
-  }, [navigate, setUser, user]);
-
+  // Logout function to clear user context and accessToken
   const handleLogout = () => {
-    setUser(null); // Clear the user from the context state
-    localStorage.removeItem('accessToken'); // Remove the accessToken from local storage
-    navigate('/login'); // Redirect user to the login page
+    setUser(null);
+    localStorage.removeItem('accessToken');
+    navigate('/login');
   };
 
-  // If we are loading, show a loading message
-  if (isLoading) {
-    return <div>Loading user data...</div>;
-  }
-
+  // Automatically redirect to login if there is no user logged in
   if (!user) {
-    return <div>No user is loged in...</div>;
+    navigate('/login');
+    return <div>Redirecting to login...</div>; // Show a message or a loader as the redirection happens
   }
 
-  // `user` is guaranteed to be set
+  // Destructure shipping and billing addresses
   const { userId, email, firstName, lastName, shippingAddress, billingAddress } = user;
-
-  // Destructure shipping and billing addresses...
   const { name: shippingName, country: shippingCountry, city: shippingCity, street: shippingStreet, zip: shippingZip, phoneNumber } = shippingAddress;
   const { name: billingName, country: billingCountry, city: billingCity, street: billingStreet, zip: billingZip, taxNumber } = billingAddress;
-  
+
   return (
     <div>
       <h2>Your Profile</h2>

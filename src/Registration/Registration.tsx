@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useNavigate } from 'react-router-dom';
-import { registerUser } from "../index";
 
 import './Registration.css';
 
@@ -62,6 +60,32 @@ function RegistrationForm() {
     const [taxNumberError, setTaxNumberError] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
 
+    async function registerUser(registerdata: IFormState) {
+      const myHeaders = new Headers({
+        'Content-Type': 'application/json',
+      });
+    
+      try {
+        const response = await fetch('http://localhost:5000/user', {
+          method: 'POST',
+          headers: myHeaders,
+          body: JSON.stringify(registerdata)
+        });
+        
+      console.log(registerdata);
+      
+        if (response.status === 201) {
+          const data = await response.json();
+          console.debug(data);
+          return data;
+        } else {
+          throw new Error('Létező felhasználó');
+        }
+      } catch(error) {
+        console.error(error);
+      }
+    }
+
     function validateEmail(inputEmail: string) {
       const regex = /^\S+@\S+\.\S+$/;
       if(!regex.test(inputEmail)){
@@ -70,72 +94,70 @@ function RegistrationForm() {
       }
       setEmailError('');
       return true;
-  }
-
-  function ValidatePassword(inputPassword: string) {
-    const regex = /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-    if(!regex.test(inputPassword)){
-      setPasswordError('Invalid password format');
-      return false;
-  }
-  setPasswordError('');
-  return true;
-  }
-
-  const handlePasswordMismatch = () => {
-    if (formState.password !== formState.confirmPassword) {
-      setPasswordConfirmError('Password and Confirm Password do not match.');
-    } else {
-      setPasswordConfirmError('');
     }
-  };
 
-  const validatePhoneNumber = (phoneNumber: string) => {
-    // This regular expression matches international phone numbers beginning with '+' follow by digits
-    const regex = /^\+[0-9]+$/;
-    if (!regex.test(phoneNumber)) {
-        setPhoneNumberError('Invalid phone number format. It should start with a "+" and contain digits only.');
-    } else {
-        setPhoneNumberError('');
+    function ValidatePassword(inputPassword: string) {
+      const regex = /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+      if(!regex.test(inputPassword)){
+        setPasswordError('Invalid password format');
+        return false;
     }
-};
-
-const validateTaxNumber = (taxNumber: string) => {
-  // This regex matches exactly 11 digits
-  const regex = /^\d{11}$/;
-  if (!regex.test(taxNumber)) {
-      setTaxNumberError('Tax number must contain exactly 11 digits.');
-  } else {
-      setTaxNumberError('');
-  }
-};
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
-    const [parent, child] = name.includes('.') ? name.split('.') : [name, ''];
-  
-    if (parent) {
-      setFormState(prevState => ({
-        ...prevState,
-        [parent]: child ? {
-          ...prevState[parent as keyof typeof prevState],
-          [child]: value
-        } : value
-      }));
-    } else {
-      setFormState(prevState => ({
-        ...prevState,
-        [name]: value
-      }));
+    setPasswordError('');
+    return true;
     }
-  };
 
-  const handleConfirmPasswordMismatch = handlePasswordMismatch;
+    const handlePasswordMismatch = () => {
+      if (formState.password !== formState.confirmPassword) {
+        setPasswordConfirmError('Password and Confirm Password do not match.');
+      } else {
+        setPasswordConfirmError('');
+      }
+    };
 
-      const navigate = useNavigate();
+    const validatePhoneNumber = (phoneNumber: string) => {
+      // This regular expression matches international phone numbers beginning with '+' follow by digits
+      const regex = /^\+[0-9]+$/;
+      if (!regex.test(phoneNumber)) {
+          setPhoneNumberError('Invalid phone number format. It should start with a "+" and contain digits only.');
+      } else {
+          setPhoneNumberError('');
+      }
+    };
+
+    const validateTaxNumber = (taxNumber: string) => {
+      // This regex matches exactly 11 digits
+      const regex = /^\d{11}$/;
+      if (!regex.test(taxNumber)) {
+          setTaxNumberError('Tax number must contain exactly 11 digits.');
+      } else {
+          setTaxNumberError('');
+      }
+    };
+
+    const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      const { name, value } = event.target;
+      const [parent, child] = name.includes('.') ? name.split('.') : [name, ''];
+    
+      if (parent) {
+        setFormState(prevState => ({
+          ...prevState,
+          [parent]: child ? {
+            ...prevState[parent as keyof typeof prevState],
+            [child]: value
+          } : value
+        }));
+      } else {
+        setFormState(prevState => ({
+          ...prevState,
+          [name]: value
+        }));
+      }
+    };
+
+    const handleConfirmPasswordMismatch = handlePasswordMismatch;
 
       // Reset form to initial state
-      const handleReset = () => {
+    const handleReset = () => {
         setFormState(initialFormState);
         setEmailError('');
     };
@@ -146,33 +168,33 @@ const validateTaxNumber = (taxNumber: string) => {
           ...prevState,
           billingAddress: { ...prevState.shippingAddress, taxNumber: prevState.billingAddress.taxNumber }
       }));
-  };
+    };
 
-  const canSubmit = () => {
-    const { username, password, passwordConfirm, firstName, lastName, shippingAddress } = formState;
-    const requiredFieldsFilled = username && password && passwordConfirm && firstName && lastName && Object.values(shippingAddress).every(value => value);
-    return requiredFieldsFilled && !emailError && !passwordError && !isSubmitting;
-};
+    const canSubmit = () => {
+      const { username, password, passwordConfirm, firstName, lastName, shippingAddress } = formState;
+      const requiredFieldsFilled = username && password && passwordConfirm && firstName && lastName && Object.values(shippingAddress).every(value => value);
+      return requiredFieldsFilled && !emailError && !passwordError && !isSubmitting;
+    };
 
-      const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
+    const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
+      event.preventDefault();
 
-        try {
-          const response = await registerUser(formState);
-          console.log(response);
-          // Display success message
-          alert('Registration successful!');
+      try {
+        const response = await registerUser(formState);
+        console.log(response);
+        // Display success message
+        alert('Registration successful!');
 
-          // Reset form state here
-          setFormState(initialFormState);
-        } catch (error) {
-          console.error('There was an error:', error);
-          alert('Registration failed. Please try again.');
-          // handle registration failure.
-        } finally {
-          setIsSubmitting(false); // Re-enable the submit button
-        }
-      };
+        // Reset form state here
+        setFormState(initialFormState);
+      } catch (error) {
+        console.error('There was an error:', error);
+        alert('Registration failed. Please try again.');
+        // handle registration failure.
+      } finally {
+        setIsSubmitting(false); // Re-enable the submit button
+      }
+    };
   
     return (
       <div>
