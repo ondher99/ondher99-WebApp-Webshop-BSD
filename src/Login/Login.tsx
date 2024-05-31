@@ -8,8 +8,30 @@ const LoginForm = () => {
   const navigate = useNavigate();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
-  const handleSubmit = async (event: { preventDefault: () => void; }) => {
+  function validateEmail(inputEmail: string) {
+    const regex = /^\S+@\S+\.\S+$/;
+    if(!regex.test(inputEmail)){
+        setEmailError('Invalid email format');
+        return false;
+    }
+    setEmailError('');
+    return true;
+}
+
+function ValidatePassword(inputPassword: string) {
+  const regex = /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+  if(!regex.test(inputPassword)){
+    setPasswordError('Invalid password format');
+    return false;
+}
+setPasswordError('');
+return true;
+}
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const payload = {
@@ -61,12 +83,14 @@ const LoginForm = () => {
       <form onSubmit={handleSubmit}>
         <label>
           Username (Email):
-          <input type="email" name="username" value={username} onChange={e => setUsername(e.target.value)} required />
+          <input type="email" name="username" value={username} onChange={e => setUsername(e.target.value)} onBlur={e => validateEmail(e.target.value)} required />
         </label>
+        {emailError && <p style={{color: 'red'}}>{emailError}</p>}
         <label>
           Password:
-          <input type="password" name="password" value={password} onChange={e => setPassword(e.target.value)} required />
+          <input type="password" name="password" value={password} onChange={e => setPassword(e.target.value)} onBlur={(e) => {ValidatePassword(e.target.value)}} required />
         </label>
+        {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
         <button type="submit">Login</button>
       </form>
     </div>
