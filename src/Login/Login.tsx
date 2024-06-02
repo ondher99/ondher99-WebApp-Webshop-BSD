@@ -14,6 +14,7 @@ const LoginForm = () => {
     username: string;
     password: string;
   }
+
   async function loginUser(logindata: LoginData) {
     const myHeaders = new Headers({
       'Content-Type': 'application/json',
@@ -32,6 +33,7 @@ const LoginForm = () => {
       throw new Error(errorData.message || 'Login failed');
     }
   }
+
   function validateEmail(inputEmail: string) {
     const regex = /^\S+@\S+\.\S+$/;
     if(!regex.test(inputEmail)){
@@ -41,6 +43,7 @@ const LoginForm = () => {
     setEmailError('');
     return true;
   }
+
   function ValidatePassword(inputPassword: string) {
     const regex = /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{8,}$/;
     if(!regex.test(inputPassword)){

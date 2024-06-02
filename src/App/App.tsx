@@ -1,15 +1,10 @@
-import RegistrationForm from "../Registration/Registration";
-import HomeScreen from '../HomeScreen/Home';
 import React from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Link
-} from 'react-router-dom';
-import LoginForm from "../Login/Login";
-import Profile from '../Profile/Profile';
+import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import HomeScreen from '../HomeScreen/Home';
 import { UserProvider } from '../Profile/UserContext';
+import LoginForm from "../Login/Login";
+import RegistrationForm from "../Registration/Registration";
+import Profile from '../Profile/Profile';
 import ChangePasswordForm from "../ChangePassword/ChangePassword";
 import ChangeProfileDataForm from "../ChangeProfile/ChangeProfileData";
 
