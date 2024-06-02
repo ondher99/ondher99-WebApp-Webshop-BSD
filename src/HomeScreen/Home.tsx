@@ -10,7 +10,7 @@ const HomeScreen: React.FC = () => {
       <div>
         <h1 >Welcome to our webshop!</h1>
         <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', justifyContent: 'center', gap: '20px' }} >
-          <Link to="/Profile">Profile</Link> | <Link to="/ChangePassword">Change password</Link>
+          <Link to="/Profile">Profile</Link> | <Link to="/ChangePassword">Change password</Link> | <Link to="/products">Product list</Link>
         </ul>
       </div>
     );
