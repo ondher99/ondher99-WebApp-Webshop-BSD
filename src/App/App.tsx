@@ -9,14 +9,20 @@ import ChangeProfileDataForm from "../ChangeProfile/ChangeProfileData";
 import RegistrationForm from "../Registration/Registration";
 import CategoryPage from "../views/Product/CategoryPage";
 
-const App = () => {
-  return (
+
+function keyExists(key: string): boolean {
+  return localStorage.getItem(key) !== null;
+}
+
+const App: React.FC = () => {
+  return(
     <UserProvider>
       <Router>
         <div>
+          <h1>Alfa csapat Webshop</h1>
           <nav style={{ marginBottom: '20px' }}>
             <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', gap: '20px' }}>
-              <li><Link to="/">Home</Link></li>
+            <Link to="/">Home</Link> | <Link to="/Profile">Profile</Link>
             </ul>
           </nav>
           <Routes>
