@@ -9,11 +9,6 @@ import ChangeProfileDataForm from "../ChangeProfile/ChangeProfileData";
 import RegistrationForm from "../Registration/Registration";
 import CategoryPage from "../views/Product/CategoryPage";
 
-
-function keyExists(key: string): boolean {
-  return localStorage.getItem(key) !== null;
-}
-
 const App: React.FC = () => {
   return(
     <UserProvider>
