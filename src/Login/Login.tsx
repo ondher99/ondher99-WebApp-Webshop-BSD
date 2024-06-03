@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, getUsers } from '../Profile/UserContext';
 
@@ -12,6 +12,28 @@ const LoginForm = () => {
   const [loginError, setLoginError] = useState('');
   const [isEmailValid, setIsEmailValid] = useState(false);  // State to track if email is valid
   const [isPasswordValid, setIsPasswordValid] = useState(false); // State to track if password is valid
+  const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
+
+  // On component mount, check if the user is already logged in
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    if (token) {
+      // Assuming getUsers will set the user profile based on the token
+      getUsers().then((userData) => {
+        setUser(userData);
+        navigate('/profile'); // Redirect to profile page
+      }).catch(error => {
+        console.log('Error fetching user data: ', error);
+      });
+    }
+  }, [navigate, setUser]);
+
+  function handleValidation () {
+    // Check and show field required messages upon submit attempt
+    const emailValid = validateEmail(username);
+    const passwordValid = ValidatePassword(password);
+    return emailValid && passwordValid;
+  }
 
   function validateEmail(inputEmail: string) {
     const regex = /^\S+@\S+\.\S+$/;
@@ -71,6 +93,12 @@ const LoginForm = () => {
   // onSubmit handler remains the same
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setIsSubmitAttempted(true); // User attempted to submit the form
+
+    if (!handleValidation()) {
+      // Stop the submit if validation fails
+      return;
+    }
 
     setLoginError('');
 
@@ -112,13 +140,16 @@ const LoginForm = () => {
           onChange={e => setUsername(e.target.value)} 
           onBlur={e => validateEmail(e.target.value)} required />
         </label>
+        {(isSubmitAttempted && !username) && <p style={{color: 'red'}}>Field required</p>}
         {emailError && <p style={{color: 'red'}}>{emailError}</p>}
+
         <label>
           Password:
           <input type="password" name="password" value={password} 
           onChange={e => setPassword(e.target.value)} 
           onBlur={e => {ValidatePassword(e.target.value)}} required />
         </label>
+        {(isSubmitAttempted && !password) && <p style={{color: 'red'}}>Field required</p>}
         {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
 
         {loginError && <p className="login-error">{loginError}</p>}
