@@ -1,7 +1,6 @@
 import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useUser } from '../Profile/UserContext';
-import { getUsers, changeData } from '../index';
+import { useUser, getUsers } from '../Profile/UserContext';
 
 const ChangeProfileDataForm = () => {
   interface IFormState {
@@ -45,10 +44,40 @@ const ChangeProfileDataForm = () => {
         taxNumber: '',
       }
     };
+
     const { user, setUser } = useUser();
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState(!user);
     const [formState, setFormState] = useState<IFormState>(initialFormState);
+
+    function changeData(url = "", registerdata = {}) {
+      const authtoken = localStorage.getItem('accessToken')
+      const myHeaders = new Headers({
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + authtoken
+      });
+      
+      return fetch(url, {
+        method: 'PUT',
+        headers: myHeaders,
+        body: JSON.stringify(registerdata)
+      })
+      
+      .then(response => {
+          if (response.status === 200) {
+            return response.json();
+          } else {
+            throw new Error('Hiányzó vagy érvénytelen auth token - belépés szükséges');
+          }
+        })
+        .then(response => {
+          console.debug(response);
+          return response;
+        }).catch(error => {
+          console.error(error);
+        });
+      }
+
     useEffect(() => {
       if (!user) {
         setIsLoading(true);
@@ -76,6 +105,7 @@ const ChangeProfileDataForm = () => {
     if (isLoading) {
       return <div>Loading user data...</div>;
     }
+
   const submitForm = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
     changeData('http://localhost:5000/user', formState)
@@ -93,6 +123,7 @@ const ChangeProfileDataForm = () => {
       alert('No user data received');
     }
   };
+
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
     const target = event.target;
     const name = target.name;
@@ -113,6 +144,7 @@ const ChangeProfileDataForm = () => {
       }));
     }
   };
+
   return (
     <div>
       <form onSubmit={submitForm}>

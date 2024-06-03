@@ -53,34 +53,37 @@ const LoginForm = () => {
   setPasswordError('');
   return true;
   }
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const payload = {
       username: username.trim(),
       password: password.trim(),
     };
+
     try {
       const response = await loginUser(payload);
+
+      // Save the access token in localStorage if it exists in the response
       if (response.accessToken) {
         localStorage.setItem('accessToken', response.accessToken);
+        // Fetch the user data
         const userData = await getUsers();
+
         if (userData) {
           setUser(userData);
-          navigate('/profile');
+          navigate('/');
         } else {
-          alert('No user data received');
         }
       } else {
-        alert('Login succeeded but no access token was returned');
       }
     } catch (error) {
       if (error instanceof Error) {
-        alert(`Failed to login: ${error.message}. Wrong username or password.`);
       } else {
-        alert('Failed to login due to an unexpected error.');
       }
     }
   };
+
   return (
     <div>
       <h1>Login Form</h1>

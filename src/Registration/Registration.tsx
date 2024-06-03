@@ -1,5 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
-import registerUser from "../index";
+import React, { useState } from "react";
 
 import './Registration.css';
 
@@ -26,7 +25,7 @@ function RegistrationForm() {
         zip: string;
         taxNumber: string;
       };
-      [key: string]: any;
+      [key: string]: any; // To make TypeScript accept dynamic properties
     }
     const initialFormState: IFormState = {
       username: '',
@@ -183,13 +182,11 @@ function RegistrationForm() {
         const response = await registerUser(formState);
         console.log(response);
         // Display success message
-        alert('Registration successful!');
 
         // Reset form state here
         setFormState(initialFormState);
       } catch (error) {
         console.error('There was an error:', error);
-        alert('Registration failed. Please try again.');
         // handle registration failure.
       } finally {
         setIsSubmitting(false); // Re-enable the submit button

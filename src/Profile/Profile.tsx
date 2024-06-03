@@ -1,41 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from './UserContext';
-import { getUsers } from '../index';
 
 function Profile() {
   const { user, setUser } = useUser();
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(!user);
-  useEffect(() => {
-    if (!user) {
-      setIsLoading(true);
-      getUsers()
-        .then(userData => {
-          setUser(userData);
-          setIsLoading(false);
-        })
-        .catch(error => {
-          console.error('Failed to fetch user:', error);
-          setIsLoading(false);
-          navigate('/login');
-        });
-    }
-  }, [navigate, setUser, user]);
+
+  // Logout function to clear user context and accessToken
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('accessToken');
     navigate('/login');
   };
-  if (isLoading) {
-    return <div>Loading user data...</div>;
-  }
+
+  // Automatically redirect to login if there is no user logged in
   if (!user) {
-    return <div>No user is loged in...</div>;
+    navigate('/login');
+    return <div>Redirecting to login...</div>; // Show a message or a loader as the redirection happens
   }
+
+  // Destructure shipping and billing addresses
   const { userId, email, firstName, lastName, shippingAddress, billingAddress } = user;
   const { name: shippingName, country: shippingCountry, city: shippingCity, street: shippingStreet, zip: shippingZip, phoneNumber } = shippingAddress;
   const { name: billingName, country: billingCountry, city: billingCity, street: billingStreet, zip: billingZip, taxNumber } = billingAddress;
+
   return (
     <div>
       <h2>Your Profile</h2>
@@ -59,7 +47,8 @@ function Profile() {
       <p>Street: {billingStreet}</p>
       <p>ZIP: {billingZip}</p>
       <p>Tax Number: {taxNumber}</p>
-      <li><Link to='../ChangeProfile'>Change Profile Data</Link></li>
+      <li><Link to='../ChangeProfile'>Change Profile Data</Link> | 
+          <Link to="/ChangePassword">Change password</Link></li>
       <button onClick={handleLogout}>Logout</button>
     </div>
   );

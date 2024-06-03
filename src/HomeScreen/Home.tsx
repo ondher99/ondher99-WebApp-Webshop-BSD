@@ -1,16 +1,15 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useUser } from '../Profile/UserContext';
 
-function keyExists(key: string): boolean {
-  return localStorage.getItem(key) !== null;
-}
 const HomeScreen: React.FC = () => {
-  if(keyExists("accessToken")){
+  const { user } = useUser();
+  if(user){
     return (
       <div>
         <h1 >Welcome to our webshop!</h1>
         <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', justifyContent: 'center', gap: '20px' }} >
-          <Link to="/Profile">Profile</Link> | <Link to="/ChangePassword">Change password</Link> | <Link to="/products">Product list</Link>
+          <Link to="/Profile">Profile</Link> | <Link to="/products">Product list</Link>
         </ul>
       </div>
     );
@@ -19,7 +18,7 @@ const HomeScreen: React.FC = () => {
     <div>
       <h1>Welcome to our webshop!</h1>
       <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', justifyContent: 'center', gap: '20px' }} >
-        <Link to="/Login">Login</Link> | <Link to="/Registration">Register</Link>
+        <Link to="/Login">Login</Link> | <Link to="/Registration">Register</Link> | <Link to="/products">Product list</Link>
       </ul>
     </div>
   );
