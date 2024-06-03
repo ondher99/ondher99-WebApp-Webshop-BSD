@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useUser, getUsers } from '../Profile/UserContext';
 
@@ -16,18 +17,28 @@ const ChangePasswordForm = () => {
         password: password.trim(),
         passwordConfirm: passwordConfirm.trim()
     };
-    try {
-        const response = await changePassword(payload);
-        if(response.status == 204){
-            navigate('/')
+        if(password != passwordConfirm){
+            toast("Password and confirm password doesn't match")
+            return null;
         }
-        } catch (error) {
-        if (error instanceof Error) {  
-            alert(`${error.message}`);
-            } else {
-            alert('Password change failed. Error unknown');
+        if(oldPassword == password){
+                toast("Old and new password doesn't match");
+                return null;
+        }else{
+            try {
+                const response = await changePassword(payload);
+                if(response.status == 204){
+                    toast("Password change successful")
+                    navigate('/')
+                }
+                } catch (error) {
+                if (error instanceof Error) {  
+                    toast(`${error.message}`);
+                    } else {
+                    toast('Password change failed. Error unknown');
+                    }
+                }
             }
-        }
     }
     function ValidatePassword(inputPassword: string) {
         const regex = /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{8,}$/;

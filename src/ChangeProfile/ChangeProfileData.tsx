@@ -2,6 +2,7 @@ import React, { ChangeEvent, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useUser } from '../Profile/UserContext';
 import { getUsers, changeData } from '../index';
+import { toast } from 'react-toastify';
 
 const ChangeProfileDataForm = () => {
   interface IFormState {
@@ -90,7 +91,7 @@ const ChangeProfileDataForm = () => {
       setUser(userData);
       navigate('/profile');
     } else {
-      alert('No user data received');
+      toast('No user data received');
     }
   };
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
