@@ -250,7 +250,8 @@ function RegistrationForm() {
         <h1>Registration Form</h1>
         <form onSubmit={submitForm}>
           {/* Create fields for username, password, etc. */}
-          <label>Username (Email): <input
+          <label>(*) must fill</label>
+          <label>Username (Email)*: <input
           type="email"
           name="username"
           value={formState.username}
@@ -259,7 +260,7 @@ function RegistrationForm() {
           </label>
           {emailError && <p style={{color: 'red'}}>{emailError}</p>}
 
-          <label>Password: <input
+          <label>Password*: <input
           type='password'
           name='password'
           value={formState.password}
@@ -268,7 +269,7 @@ function RegistrationForm() {
           </label>
           {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
 
-          <label>Confirm Password: <input
+          <label>Confirm Password*: <input
           type='password'
           name='passwordConfirm'
           value={formState.passwordConfirm}
@@ -277,17 +278,17 @@ function RegistrationForm() {
           </label>
           {passwordConfirmError && <p style={{color: 'red'}}>{passwordConfirmError}</p>}
 
-          <label>First Name: <input type='text' name='firstName' value={formState.firstName} onChange={handleInputChange}/></label>
+          <label>First Name*: <input type='text' name='firstName' value={formState.firstName} onChange={handleInputChange}/></label>
           
-          <label>Last Name: <input type='text' name='lastName' value={formState.lastName} onChange={handleInputChange}/></label>
+          <label>Last Name*: <input type='text' name='lastName' value={formState.lastName} onChange={handleInputChange}/></label>
 
-          <label>Shipping Address - Name: <input type='text' name='shippingAddress.name' value={formState.shippingAddress.name} onChange={handleInputChange}/></label>
-          <label>Country: <input type='text' name='shippingAddress.country' value={formState.shippingAddress.country} onChange={handleInputChange}/></label>
-          <label>City: <input type='text' name='shippingAddress.city' value={formState.shippingAddress.city} onChange={handleInputChange}/></label>
-          <label>Street: <input type='text' name='shippingAddress.street' value={formState.shippingAddress.street} onChange={handleInputChange}/></label>
-          <label>Zip: <input type='text' name='shippingAddress.zip' value={formState.shippingAddress.zip} onChange={handleInputChange}/></label>
+          <label>Shipping Address - Name*: <input type='text' name='shippingAddress.name' value={formState.shippingAddress.name} onChange={handleInputChange}/></label>
+          <label>Country*: <input type='text' name='shippingAddress.country' value={formState.shippingAddress.country} onChange={handleInputChange}/></label>
+          <label>City*: <input type='text' name='shippingAddress.city' value={formState.shippingAddress.city} onChange={handleInputChange}/></label>
+          <label>Street*: <input type='text' name='shippingAddress.street' value={formState.shippingAddress.street} onChange={handleInputChange}/></label>
+          <label>Zip*: <input type='text' name='shippingAddress.zip' value={formState.shippingAddress.zip} onChange={handleInputChange}/></label>
 
-          <label>Phone Number: <input
+          <label>Phone Number*: <input
           type='text'
           name='shippingAddress.phoneNumber'
           value={formState.shippingAddress.phoneNumber}
@@ -298,11 +299,11 @@ function RegistrationForm() {
 
           <button type='button' onClick={handleCopyAddress}>Copy Shipping to Billing</button>
           {/* Create fields for billingAddress */}
-          <label>Billing Address - Name: <input type='text' name='billingAddress.name' value={formState.billingAddress.name} onChange={handleInputChange}/></label>
-          <label>Country: <input type='text' name='billingAddress.country' value={formState.billingAddress.country} onChange={handleInputChange}/></label>
-          <label>City: <input type='text' name='billingAddress.city' value={formState.billingAddress.city} onChange={handleInputChange}/></label>
-          <label>Street: <input type='text' name='billingAddress.street' value={formState.billingAddress.street} onChange={handleInputChange}/></label>
-          <label>Zip: <input type='text' name='billingAddress.zip' value={formState.billingAddress.zip} onChange={handleInputChange}/></label>
+          <label>Billing Address - Name*: <input type='text' name='billingAddress.name' value={formState.billingAddress.name} onChange={handleInputChange}/></label>
+          <label>Country*: <input type='text' name='billingAddress.country' value={formState.billingAddress.country} onChange={handleInputChange}/></label>
+          <label>City*: <input type='text' name='billingAddress.city' value={formState.billingAddress.city} onChange={handleInputChange}/></label>
+          <label>Street*: <input type='text' name='billingAddress.street' value={formState.billingAddress.street} onChange={handleInputChange}/></label>
+          <label>Zip*: <input type='text' name='billingAddress.zip' value={formState.billingAddress.zip} onChange={handleInputChange}/></label>
 
           <label>(Optional) Tax Number: <input
           type='text'
