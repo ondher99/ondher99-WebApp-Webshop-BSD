@@ -1,10 +1,46 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
+
+
+interface Category {
+  id: string;
+  name: string;
+  image: string;
+}
+
+
 
 function keyExists(key: string): boolean {
   return localStorage.getItem(key) !== null;
 }
-const HomeScreen: React.FC = () => {
+
+
+function HomeScreen() {
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  async function fetchCategories (categoryData: Category[]){
+    const myHeaders = new Headers({
+        'Content-Type': 'application/json',
+    });
+  
+    const response = await fetch("http://localhost:5000/products/categories", {
+      method: 'GET',
+      headers: myHeaders,
+      body: JSON.stringify(categoryData)
+    })
+  try{
+    if(response.ok){
+      setCategories(categoryData)
+      console.debug(categories)
+    }else{
+      console.debug(response);
+    }
+  }catch(error){
+    console.debug(error)
+  }
+
+  }
     if(keyExists("accessToken")){
     return (
       <div>

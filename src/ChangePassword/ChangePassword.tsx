@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { toast } from 'react-toastify';
+import { ToastContainer, toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-import { useUser, getUsers } from '../Profile/UserContext';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const ChangePasswordForm = () => {
     const navigate = useNavigate();
@@ -18,11 +19,11 @@ const ChangePasswordForm = () => {
         passwordConfirm: passwordConfirm.trim()
     };
         if(password != passwordConfirm){
-            toast("Password and confirm password doesn't match")
+            toast.error("Password and confirm password doesn't match")
             return null;
         }
         if(oldPassword == password){
-                toast("Old and new password doesn't match");
+                toast.error("Old and new password cannot match");
                 return null;
         }else{
             try {
@@ -93,6 +94,7 @@ const ChangePasswordForm = () => {
                 {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
                 <button type="submit">Confirm new password</button>
             </form>
+            <ToastContainer/>
         </div>
     );
 }

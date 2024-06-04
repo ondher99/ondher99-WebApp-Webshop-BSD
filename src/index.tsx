@@ -69,34 +69,6 @@ function registerUser(url = "", registerdata = {}) {
       });
     }
 
-    export function changeData(url = "", registerdata = {}) {
-      const authtoken = localStorage.getItem('accessToken')
-      const myHeaders = new Headers({
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + authtoken
-      });
-      
-      return fetch(url, {
-        method: 'PUT',
-        headers: myHeaders,
-        body: JSON.stringify(registerdata)
-      })
-      
-      .then(response => {
-          if (response.status === 200) {
-            return response.json();
-          } else {
-            throw new Error('Hiányzó vagy érvénytelen auth token - belépés szükséges');
-          }
-        })
-        .then(response => {
-          console.debug(response);
-          return response;
-        }).catch(error => {
-          console.error(error);
-        });
-      }
-
 export function getUsers() {
   const authtoken = localStorage.getItem('accessToken');
   
