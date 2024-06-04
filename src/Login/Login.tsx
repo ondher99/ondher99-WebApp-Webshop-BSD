@@ -13,6 +13,19 @@ const LoginForm = () => {
   const [isEmailValid, setIsEmailValid] = useState(false);  // State to track if email is valid
   const [isPasswordValid, setIsPasswordValid] = useState(false); // State to track if password is valid
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
+  const [formError, setFormError] = useState('');
+
+  const checkRequiredFields = () => {
+
+    const requiredFields = [
+      username,
+      password,
+    ];
+    
+    const result = requiredFields.every(field => field.trim() !== '');
+
+    return result;
+  };
 
   // On component mount, check if the user is already logged in
   useEffect(() => {
@@ -95,6 +108,12 @@ const LoginForm = () => {
     event.preventDefault();
     setIsSubmitAttempted(true); // User attempted to submit the form
 
+    if (!checkRequiredFields()) {
+      // If any required field is empty, stop form submission
+      setFormError('Please fill all fields before submitting.');
+      return;
+    }
+
     if (!handleValidation()) {
       // Stop the submit if validation fails
       return;
@@ -138,7 +157,7 @@ const LoginForm = () => {
           Username (Email):
           <input type="email" name="username" value={username} 
           onChange={e => setUsername(e.target.value)} 
-          onBlur={e => validateEmail(e.target.value)} required />
+          onBlur={e => validateEmail(e.target.value)}/>
         </label>
         {(isSubmitAttempted && !username) && <p style={{color: 'red'}}>Field required</p>}
         {emailError && <p style={{color: 'red'}}>{emailError}</p>}
@@ -147,12 +166,14 @@ const LoginForm = () => {
           Password:
           <input type="password" name="password" value={password} 
           onChange={e => setPassword(e.target.value)} 
-          onBlur={e => {ValidatePassword(e.target.value)}} required />
+          onBlur={e => {ValidatePassword(e.target.value)}}/>
         </label>
         {(isSubmitAttempted && !password) && <p style={{color: 'red'}}>Field required</p>}
         {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
 
         {loginError && <p className="login-error">{loginError}</p>}
+        
+        {formError && <div style={{ color: 'red' }}>{formError}</div>}
 
         <button type="submit" disabled={!(isEmailValid && isPasswordValid)}>Login</button>
       </form>

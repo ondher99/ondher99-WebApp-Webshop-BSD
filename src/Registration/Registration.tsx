@@ -193,6 +193,12 @@ function RegistrationForm() {
     const handleReset = () => {
         setFormState(initialFormState);
         setEmailError('');
+        setFormError('');
+        setPasswordError('');
+        setPasswordConfirmError('');
+        setPhoneNumberError('');
+        setTaxNumberError('');
+        setUserError('');
     };
 
     // Copy shipping address to billing address
