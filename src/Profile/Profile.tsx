@@ -16,7 +16,7 @@ function Profile() {
   // Automatically redirect to login if there is no user logged in
   if (!user) {
     navigate('/login');
-    return <div>Redirecting to login...</div>; // Show a message or a loader as the redirection happens
+    return null;
   }
 
   // Destructure shipping and billing addresses
@@ -48,7 +48,7 @@ function Profile() {
       <p>ZIP: {billingZip}</p>
       <p>Tax Number: {taxNumber}</p>
       <li><Link to='../ChangeProfile'>Change Profile Data</Link> | 
-          <Link to="/ChangePassword">Change password</Link></li>
+          <Link to='../ChangePassword'>Change password</Link></li>
       <button onClick={handleLogout}>Logout</button>
     </div>
   );

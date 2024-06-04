@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import './Registration.css';
 
@@ -79,7 +81,6 @@ function RegistrationForm() {
         formState.billingAddress.country,
         formState.billingAddress.street,
         formState.billingAddress.zip,
-        //formState.billingAddress.taxNumber,
       ];
       
       const result = requiredFields.every(field => field.trim() !== '');
@@ -89,40 +90,40 @@ function RegistrationForm() {
 
     async function registerUser(registerdata: IFormState) {
       const myHeaders = new Headers({
-        'Content-Type': 'application/json',
+          'Content-Type': 'application/json',
       });
-
+  
       let payload = { ...registerdata, billingAddress: { ...registerdata.billingAddress } };
-
+  
       // If the taxNumber field is empty, delete it from the payload
       if (!payload.billingAddress.taxNumber?.trim()) {
-        delete payload.billingAddress.taxNumber;
+          delete payload.billingAddress.taxNumber;
       }
-    
+  
       try {
-        const response = await fetch('http://localhost:5000/user', {
-          method: 'POST',
-          headers: myHeaders,
-          body: JSON.stringify(payload)
-        });
-      
-        if (response.status === 201) {
-          const data = await response.json();
-          console.debug(data);
-          setUserError('');
-          return data;
-        }
-        if (response.status === 409) {
-          setUserError('Existing User!')
-        }
-        if (response.status === 400) {
-          setUserError('Bad Request: Check if user data is correct!');
-          console.error(response);
-        } else {
-          throw new Error('There was an error!');
-        }
-      } catch(error) {
+          const response = await fetch('http://localhost:5000/user', {
+              method: 'POST',
+              headers: myHeaders,
+              body: JSON.stringify(payload)
+          });
+  
+          if (response.ok) {
+              const data = await response.json();
+              return data;
+          } else {
+              const errorData = await response.json();
+              const errorMessage = errorData.message || 'There was an error with the registration.';
+              throw new Error(errorMessage);
+          }
+      } catch (error: unknown) {
         console.error(error);
+        
+        if (error instanceof Error) {
+            setUserError(error.message);
+        } else {
+            setUserError("An unexpected error occurred during registration.");
+        }
+        throw error;
       }
     }
 
@@ -167,10 +168,12 @@ function RegistrationForm() {
     const validateTaxNumber = (taxNumber: string) => {
       // This regex matches exactly 11 digits
       const regex = /^\d{11}$/;
-      if (!regex.test(taxNumber)) {
-          setTaxNumberError('Tax number must contain exactly 11 digits.');
+    
+      // Only validate the taxNumber if there is an input
+      if (taxNumber && !regex.test(taxNumber)) {
+        setTaxNumberError('Tax number must contain exactly 11 digits.');
       } else {
-          setTaxNumberError('');
+        setTaxNumberError(''); // Clear the error if the format is correct or the field is empty
       }
     };
 
@@ -223,25 +226,60 @@ function RegistrationForm() {
       });
     };
 
+    const showSuccessNotification = () => {
+      toast.success("Registration successful! You can now log in with your new account.", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      });
+    };
+
+    const showErrorNotification = (message: string) => {
+      toast.error(message, {
+        position: "top-center",
+        autoClose: 5000,
+      });
+    };
+
     const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
-      setFormError('');
-
-      if (!checkRequiredFields()) {
-        // If any required field is empty, stop form submission
-        setFormError('Please fill all fields before submitting.');
+    
+      // Run all field validations again before submitting
+      const isEmailValid = validateEmail(formState.username);
+      const isPasswordValid = ValidatePassword(formState.password);
+      handlePasswordMismatch(); // This will update the passwordConfirmError if there's a mismatch
+      validatePhoneNumber(formState.shippingAddress.phoneNumber);
+      // Only validate tax number if it's provided
+      if (formState.billingAddress.taxNumber) {
+        validateTaxNumber(formState.billingAddress.taxNumber);
+      }
+    
+      // Check that all fields are filled and all validations have passed
+      const canSubmit =
+        checkRequiredFields() &&
+        isEmailValid &&
+        isPasswordValid &&
+        passwordConfirmError === "" && // No mismatch error
+        phoneNumberError === "" && // Phone number validation has passed
+        taxNumberError === ""; // Tax number validation has passed or the field is empty
+    
+      if (!canSubmit) {
+        setFormError('Please correct the errors before submitting.');
         return;
       }
-
+    
+      // If all validations pass, proceed with submitting the form
       try {
         await registerUser(formState);
-        // Display success message
-
-        // Reset form state here
-        //setFormState(initialFormState);
+        
+        showSuccessNotification(); 
+        handleReset(); // Clear the form after successful registration
       } catch (error) {
-        console.error('There was an error:', error);
-        // handle registration failure.
+        showErrorNotification("Failed to register. Please try again later.");
       }
     };
   
@@ -249,7 +287,6 @@ function RegistrationForm() {
       <div>
         <h1>Registration Form</h1>
         <form onSubmit={submitForm}>
-          {/* Create fields for username, password, etc. */}
           <label>(*) must fill</label>
           <label>Username (Email)*: <input
           type="email"
@@ -298,7 +335,6 @@ function RegistrationForm() {
           {phoneNumberError && <p style={{color: 'red'}}>{phoneNumberError}</p>}
 
           <button type='button' onClick={handleCopyAddress}>Copy Shipping to Billing</button>
-          {/* Create fields for billingAddress */}
           <label>Billing Address - Name*: <input type='text' name='billingAddress.name' value={formState.billingAddress.name} onChange={handleInputChange}/></label>
           <label>Country*: <input type='text' name='billingAddress.country' value={formState.billingAddress.country} onChange={handleInputChange}/></label>
           <label>City*: <input type='text' name='billingAddress.city' value={formState.billingAddress.city} onChange={handleInputChange}/></label>
@@ -319,6 +355,7 @@ function RegistrationForm() {
 
           <button type='button' onClick={handleReset}>Clear Form</button>
           <button type='submit' >Register</button>
+          <ToastContainer/>
         </form>
       </div>
     );

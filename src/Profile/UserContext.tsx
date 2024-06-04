@@ -49,7 +49,8 @@ export function getUsers() {
     if (response.status === 200) {
       return response.json();
     } else {
-      throw new Error('Something went wrong on the api server!');
+      console.error('Something went wrong on the API server!');
+      return null;
     }
   })
   .then(data => {
@@ -80,12 +81,12 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
 
     getUsers()
-      .then(response => {
-        setUser(response); 
-      })
-      .catch(error => {
-        console.error("Failed to fetch user:", error);
-      });
+    .then(response => {
+      setUser(response);
+    })
+    .catch(error => {
+      console.error("Failed to fetch user:", error);
+    });
   }, []);
 
   return (
