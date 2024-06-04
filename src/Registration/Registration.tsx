@@ -1,5 +1,4 @@
-import React, { ChangeEvent, useState } from "react";
-import registerUser from "../index";
+import React, { useState } from "react";
 
 import './Registration.css';
 
@@ -24,9 +23,9 @@ function RegistrationForm() {
         city: string;
         street: string;
         zip: string;
-        taxNumber: string;
+        taxNumber?: string;
       };
-      [key: string]: any;
+      [key: string]: any; // To make TypeScript accept dynamic properties
     }
     const initialFormState: IFormState = {
       username: '',
@@ -58,28 +57,69 @@ function RegistrationForm() {
     const [passwordConfirmError, setPasswordConfirmError] = useState('');
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [taxNumberError, setTaxNumberError] = useState('');
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [formError, setFormError] = useState('');
+    const [userError, setUserError] = useState('');
+
+    const checkRequiredFields = () => {
+
+      const requiredFields = [
+        formState.username,
+        formState.password,
+        formState.passwordConfirm,
+        formState.firstName,
+        formState.lastName,
+        formState.shippingAddress.name,
+        formState.shippingAddress.city,
+        formState.shippingAddress.country,
+        formState.shippingAddress.street,
+        formState.shippingAddress.zip,
+        formState.shippingAddress.phoneNumber,
+        formState.billingAddress.name,
+        formState.billingAddress.city,
+        formState.billingAddress.country,
+        formState.billingAddress.street,
+        formState.billingAddress.zip,
+        //formState.billingAddress.taxNumber,
+      ];
+      
+      const result = requiredFields.every(field => field.trim() !== '');
+
+      return result;
+    };
 
     async function registerUser(registerdata: IFormState) {
       const myHeaders = new Headers({
         'Content-Type': 'application/json',
       });
+
+      let payload = { ...registerdata, billingAddress: { ...registerdata.billingAddress } };
+
+      // If the taxNumber field is empty, delete it from the payload
+      if (!payload.billingAddress.taxNumber?.trim()) {
+        delete payload.billingAddress.taxNumber;
+      }
     
       try {
         const response = await fetch('http://localhost:5000/user', {
           method: 'POST',
           headers: myHeaders,
-          body: JSON.stringify(registerdata)
+          body: JSON.stringify(payload)
         });
-        
-      console.log(registerdata);
       
         if (response.status === 201) {
           const data = await response.json();
           console.debug(data);
+          setUserError('');
           return data;
+        }
+        if (response.status === 409) {
+          setUserError('Existing User!')
+        }
+        if (response.status === 400) {
+          setUserError('Bad Request: Check if user data is correct!');
+          console.error(response);
         } else {
-          throw new Error('Létező felhasználó');
+          throw new Error('There was an error!');
         }
       } catch(error) {
         console.error(error);
@@ -107,7 +147,7 @@ function RegistrationForm() {
     }
 
     const handlePasswordMismatch = () => {
-      if (formState.password !== formState.confirmPassword) {
+      if (formState.password !== formState.passwordConfirm) {
         setPasswordConfirmError('Password and Confirm Password do not match.');
       } else {
         setPasswordConfirmError('');
@@ -154,45 +194,54 @@ function RegistrationForm() {
       }
     };
 
-    const handleConfirmPasswordMismatch = handlePasswordMismatch;
-
       // Reset form to initial state
     const handleReset = () => {
         setFormState(initialFormState);
         setEmailError('');
+        setFormError('');
+        setPasswordError('');
+        setPasswordConfirmError('');
+        setPhoneNumberError('');
+        setTaxNumberError('');
+        setUserError('');
     };
 
     // Copy shipping address to billing address
     const handleCopyAddress = () => {
-      setFormState(prevState => ({
+      setFormState(prevState => {
+        // Destructure to exclude phoneNumber from the rest of the shippingAddress.
+        const { phoneNumber, ...restOfShippingAddress } = prevState.shippingAddress;
+        return {
           ...prevState,
-          billingAddress: { ...prevState.shippingAddress, taxNumber: prevState.billingAddress.taxNumber }
-      }));
-    };
-
-    const canSubmit = () => {
-      const { username, password, passwordConfirm, firstName, lastName, shippingAddress } = formState;
-      const requiredFieldsFilled = username && password && passwordConfirm && firstName && lastName && Object.values(shippingAddress).every(value => value);
-      return requiredFieldsFilled && !emailError && !passwordError && !isSubmitting;
+          billingAddress: {
+            // Spread the rest of the shipping address without phoneNumber.
+            ...restOfShippingAddress,
+            // Preserve the original taxNumber from the billingAddress.
+            taxNumber: prevState.billingAddress.taxNumber
+          }
+        };
+      });
     };
 
     const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
       event.preventDefault();
+      setFormError('');
+
+      if (!checkRequiredFields()) {
+        // If any required field is empty, stop form submission
+        setFormError('Please fill all fields before submitting.');
+        return;
+      }
 
       try {
-        const response = await registerUser(formState);
-        console.log(response);
+        await registerUser(formState);
         // Display success message
-        alert('Registration successful!');
 
         // Reset form state here
-        setFormState(initialFormState);
+        //setFormState(initialFormState);
       } catch (error) {
         console.error('There was an error:', error);
-        alert('Registration failed. Please try again.');
         // handle registration failure.
-      } finally {
-        setIsSubmitting(false); // Re-enable the submit button
       }
     };
   
@@ -201,71 +250,75 @@ function RegistrationForm() {
         <h1>Registration Form</h1>
         <form onSubmit={submitForm}>
           {/* Create fields for username, password, etc. */}
-          <label>Username (Email): <input
+          <label>(*) must fill</label>
+          <label>Username (Email)*: <input
           type="email"
           name="username"
           value={formState.username}
           onChange={handleInputChange}
-          required onBlur={e => validateEmail(e.target.value)} />
+          onBlur={e => validateEmail(e.target.value)} />
           </label>
           {emailError && <p style={{color: 'red'}}>{emailError}</p>}
 
-          <label>Password: <input
+          <label>Password*: <input
           type='password'
           name='password'
           value={formState.password}
           onChange={handleInputChange}
-          required onBlur={(e) => {ValidatePassword(e.target.value); handlePasswordMismatch();}} />
+          onBlur={(e) => {ValidatePassword(e.target.value);}} />
           </label>
           {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
-          {passwordConfirmError && <p style={{color: 'red'}}>{passwordConfirmError}</p>}
 
-          <label>Confirm Password: <input
+          <label>Confirm Password*: <input
           type='password'
           name='passwordConfirm'
           value={formState.passwordConfirm}
           onChange={handleInputChange}
-          required onBlur={handleConfirmPasswordMismatch} />
+          onBlur={handlePasswordMismatch} />
           </label>
           {passwordConfirmError && <p style={{color: 'red'}}>{passwordConfirmError}</p>}
 
-          <label>First Name: <input type='text' name='firstName' value={formState.firstName} onChange={handleInputChange} required /></label>
-          <label>Last Name: <input type='text' name='lastName' value={formState.lastName} onChange={handleInputChange} required /></label>
+          <label>First Name*: <input type='text' name='firstName' value={formState.firstName} onChange={handleInputChange}/></label>
+          
+          <label>Last Name*: <input type='text' name='lastName' value={formState.lastName} onChange={handleInputChange}/></label>
 
-          <label>Shipping Address - Name: <input type='text' name='shippingAddress.name' value={formState.shippingAddress.name} onChange={handleInputChange} required /></label>
-          <label>Country: <input type='text' name='shippingAddress.country' value={formState.shippingAddress.country} onChange={handleInputChange} required /></label>
-          <label>City: <input type='text' name='shippingAddress.city' value={formState.shippingAddress.city} onChange={handleInputChange} required /></label>
-          <label>Street: <input type='text' name='shippingAddress.street' value={formState.shippingAddress.street} onChange={handleInputChange} required /></label>
-          <label>Zip: <input type='text' name='shippingAddress.zip' value={formState.shippingAddress.zip} onChange={handleInputChange} required /></label>
+          <label>Shipping Address - Name*: <input type='text' name='shippingAddress.name' value={formState.shippingAddress.name} onChange={handleInputChange}/></label>
+          <label>Country*: <input type='text' name='shippingAddress.country' value={formState.shippingAddress.country} onChange={handleInputChange}/></label>
+          <label>City*: <input type='text' name='shippingAddress.city' value={formState.shippingAddress.city} onChange={handleInputChange}/></label>
+          <label>Street*: <input type='text' name='shippingAddress.street' value={formState.shippingAddress.street} onChange={handleInputChange}/></label>
+          <label>Zip*: <input type='text' name='shippingAddress.zip' value={formState.shippingAddress.zip} onChange={handleInputChange}/></label>
 
-          <label>Phone Number: <input
+          <label>Phone Number*: <input
           type='text'
           name='shippingAddress.phoneNumber'
           value={formState.shippingAddress.phoneNumber}
           onChange={handleInputChange}
-          onBlur={(e) => validatePhoneNumber(e.target.value)} required />
+          onBlur={(e) => validatePhoneNumber(e.target.value)}/>
           </label>
           {phoneNumberError && <p style={{color: 'red'}}>{phoneNumberError}</p>}
 
           <button type='button' onClick={handleCopyAddress}>Copy Shipping to Billing</button>
           {/* Create fields for billingAddress */}
-          <label>Billing Address - Name: <input type='text' name='billingAddress.name' value={formState.billingAddress.name} onChange={handleInputChange} required /></label>
-          <label>Country: <input type='text' name='billingAddress.country' value={formState.billingAddress.country} onChange={handleInputChange} required /></label>
-          <label>City: <input type='text' name='billingAddress.city' value={formState.billingAddress.city} onChange={handleInputChange} required /></label>
-          <label>Street: <input type='text' name='billingAddress.street' value={formState.billingAddress.street} onChange={handleInputChange} required /></label>
-          <label>Zip: <input type='text' name='billingAddress.zip' value={formState.billingAddress.zip} onChange={handleInputChange} required /></label>
+          <label>Billing Address - Name*: <input type='text' name='billingAddress.name' value={formState.billingAddress.name} onChange={handleInputChange}/></label>
+          <label>Country*: <input type='text' name='billingAddress.country' value={formState.billingAddress.country} onChange={handleInputChange}/></label>
+          <label>City*: <input type='text' name='billingAddress.city' value={formState.billingAddress.city} onChange={handleInputChange}/></label>
+          <label>Street*: <input type='text' name='billingAddress.street' value={formState.billingAddress.street} onChange={handleInputChange}/></label>
+          <label>Zip*: <input type='text' name='billingAddress.zip' value={formState.billingAddress.zip} onChange={handleInputChange}/></label>
 
-          <label>Tax Number: <input
+          <label>(Optional) Tax Number: <input
           type='text'
           name='billingAddress.taxNumber'
           value={formState.billingAddress.taxNumber}
           onChange={handleInputChange}
-          onBlur={(e) => validateTaxNumber(e.target.value)} required />
+          onBlur={(e) => validateTaxNumber(e.target.value)}/>
           </label>
           {taxNumberError && <p style={{color: 'red'}}>{taxNumberError}</p>}
 
+          {formError && <div style={{ color: 'red' }}>{formError}</div>}
+          {userError && <div style={{ color: 'red' }}>{userError}</div>}
+
           <button type='button' onClick={handleReset}>Clear Form</button>
-          <button type='submit' disabled={!canSubmit()}>Register</button>
+          <button type='submit' >Register</button>
         </form>
       </div>
     );

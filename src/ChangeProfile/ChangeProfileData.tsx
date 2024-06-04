@@ -126,10 +126,11 @@ const ChangeProfileDataForm = () => {
     };
   const submitForm = async (event: { preventDefault: () => void; }) => {
     event.preventDefault();
-    if (!formState.billingAddress.taxNumber?.trim()) {
+    let formData = formState; 
+    if (!formData.billingAddress.taxNumber?.trim()) {
       delete formState.billingAddress.taxNumber;
     }
-    changeData('http://localhost:5000/user', formState)
+    changeData('http://localhost:5000/user', formData)
     .then(response => {
       console.log(response);
     })

@@ -9,15 +9,14 @@ import ChangeProfileDataForm from "../ChangeProfile/ChangeProfileData";
 import RegistrationForm from "../Registration/Registration";
 import CategoryPage from "../views/Product/CategoryPage";
 
-const App: React.FC = () => {
-  return(
+const App = () => {
+  return (
     <UserProvider>
       <Router>
         <div>
-          <h1>Alfa csapat Webshop</h1>
           <nav style={{ marginBottom: '20px' }}>
             <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', gap: '20px' }}>
-            <Link to="/">Home</Link> | <Link to="/Profile">Profile</Link>
+              <li><Link to="/">Home</Link></li>
             </ul>
           </nav>
           <Routes>
