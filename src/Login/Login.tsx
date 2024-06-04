@@ -53,11 +53,11 @@ const LoginForm = () => {
     if(!regex.test(inputEmail)){
         setEmailError('Invalid email format');
         setIsEmailValid(false);  // Email is not valid
-        return false;
+        return isEmailValid;
     }
     setEmailError('');
     setIsEmailValid(true);  // Email is valid
-    return true;
+    return isEmailValid;
   }
 
   function ValidatePassword(inputPassword: string) {
@@ -65,11 +65,11 @@ const LoginForm = () => {
     if(!regex.test(inputPassword)){
       setPasswordError('Invalid password format');
       setIsPasswordValid(false);  // Password is not valid
-      return false;
+      return isPasswordValid;
     }
     setPasswordError('');
     setIsPasswordValid(true);  // Password is valid
-    return true;
+    return isPasswordValid;
   }
 
   interface LoginData {
@@ -115,11 +115,10 @@ const LoginForm = () => {
     }
 
     if (!handleValidation()) {
+      setLoginError('Enter correct email and password!');
       // Stop the submit if validation fails
       return;
     }
-
-    setLoginError('');
 
     const payload = {
       username: username.trim(),
@@ -170,12 +169,11 @@ const LoginForm = () => {
         </label>
         {(isSubmitAttempted && !password) && <p style={{color: 'red'}}>Field required</p>}
         {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
-
-        {loginError && <p className="login-error">{loginError}</p>}
         
         {formError && <div style={{ color: 'red' }}>{formError}</div>}
+        {loginError && <p className="login-error">{loginError}</p>}
 
-        <button type="submit" disabled={!(isEmailValid && isPasswordValid)}>Login</button>
+        <button type="submit" >Login</button>
       </form>
     </div>
   );

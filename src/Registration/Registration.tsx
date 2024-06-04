@@ -23,7 +23,7 @@ function RegistrationForm() {
         city: string;
         street: string;
         zip: string;
-        taxNumber: string;
+        taxNumber?: string;
       };
       [key: string]: any; // To make TypeScript accept dynamic properties
     }
@@ -79,7 +79,7 @@ function RegistrationForm() {
         formState.billingAddress.country,
         formState.billingAddress.street,
         formState.billingAddress.zip,
-        formState.billingAddress.taxNumber,
+        //formState.billingAddress.taxNumber,
       ];
       
       const result = requiredFields.every(field => field.trim() !== '');
@@ -91,16 +91,20 @@ function RegistrationForm() {
       const myHeaders = new Headers({
         'Content-Type': 'application/json',
       });
+
+      let payload = { ...registerdata, billingAddress: { ...registerdata.billingAddress } };
+
+      // If the taxNumber field is empty, delete it from the payload
+      if (!payload.billingAddress.taxNumber?.trim()) {
+        delete payload.billingAddress.taxNumber;
+      }
     
       try {
         const response = await fetch('http://localhost:5000/user', {
           method: 'POST',
           headers: myHeaders,
-          body: JSON.stringify(registerdata)
+          body: JSON.stringify(payload)
         });
-        
-      console.log(registerdata);
-      console.log(response.status);
       
         if (response.status === 201) {
           const data = await response.json();
@@ -112,7 +116,8 @@ function RegistrationForm() {
           setUserError('Existing User!')
         }
         if (response.status === 400) {
-          setUserError('Bad Request: Check if user data is correct');
+          setUserError('Bad Request: Check if user data is correct!');
+          console.error(response);
         } else {
           throw new Error('There was an error!');
         }
@@ -203,10 +208,19 @@ function RegistrationForm() {
 
     // Copy shipping address to billing address
     const handleCopyAddress = () => {
-      setFormState(prevState => ({
+      setFormState(prevState => {
+        // Destructure to exclude phoneNumber from the rest of the shippingAddress.
+        const { phoneNumber, ...restOfShippingAddress } = prevState.shippingAddress;
+        return {
           ...prevState,
-          billingAddress: { ...prevState.shippingAddress, taxNumber: prevState.billingAddress.taxNumber }
-      }));
+          billingAddress: {
+            // Spread the rest of the shipping address without phoneNumber.
+            ...restOfShippingAddress,
+            // Preserve the original taxNumber from the billingAddress.
+            taxNumber: prevState.billingAddress.taxNumber
+          }
+        };
+      });
     };
 
     const submitForm = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -220,8 +234,7 @@ function RegistrationForm() {
       }
 
       try {
-        const response = await registerUser(formState);
-        console.log(response);
+        await registerUser(formState);
         // Display success message
 
         // Reset form state here
@@ -291,7 +304,7 @@ function RegistrationForm() {
           <label>Street: <input type='text' name='billingAddress.street' value={formState.billingAddress.street} onChange={handleInputChange}/></label>
           <label>Zip: <input type='text' name='billingAddress.zip' value={formState.billingAddress.zip} onChange={handleInputChange}/></label>
 
-          <label>Tax Number: <input
+          <label>(Optional) Tax Number: <input
           type='text'
           name='billingAddress.taxNumber'
           value={formState.billingAddress.taxNumber}

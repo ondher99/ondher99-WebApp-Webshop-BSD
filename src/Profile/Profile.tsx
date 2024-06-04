@@ -10,7 +10,7 @@ function Profile() {
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem('accessToken');
-    navigate('/login');
+    navigate('/');
   };
 
   // Automatically redirect to login if there is no user logged in
