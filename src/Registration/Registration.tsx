@@ -335,33 +335,6 @@ function RegistrationForm() {
       checkIfEmpty(formState.billingAddress.street, 'billingAddress.street');
       checkIfEmpty(formState.billingAddress.zip, 'billingAddress.zip');
   
-    
-      // Check that all fields are filled and all validations have passed
-      /*const canSubmit = [
-        formState.username,
-        formState.password,
-        formState.passwordConfirm,
-        formState.firstName,
-        formState.lastName,
-        formState.shippingAddress.name,
-        formState.shippingAddress.country,
-        formState.shippingAddress.city,
-        formState.shippingAddress.street,
-        formState.shippingAddress.zip,
-        formState.billingAddress.name,
-        formState.billingAddress.country,
-        formState.billingAddress.city,
-        formState.billingAddress.street,
-        formState.billingAddress.zip,
-      ].every(field => {
-        const hasValue = field.trim() !== '';
-        if (!hasValue) {
-          // This assumes you have a mapping of fields to their respective setError functions.
-          fieldErrorSetters[field](`${field} is required`);
-        }
-        return hasValue;
-      }) &&*/
-
       const canSubmit = Object.entries(formState).every(([fieldName, fieldValue]) => {
         const hasValue = typeof fieldValue === 'object'
           ? Object.values(fieldValue as Record<string, string>).every(value => value.trim() !== '')  // For nested objects like addresses
