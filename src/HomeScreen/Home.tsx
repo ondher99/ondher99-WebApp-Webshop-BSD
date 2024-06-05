@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { useUser } from '../Profile/UserContext';
 import "./Home.css"
 
 interface Category {
@@ -11,7 +10,6 @@ interface Category {
 }
 
 const HomeScreen: React.FC = () => {
-  const { user } = useUser();
   const [categories, setCategories] = useState<Category[]>([]);
   const [error, setError] = useState<string | null>(null);
 
@@ -49,18 +47,7 @@ const HomeScreen: React.FC = () => {
     <div>
       <h1>Welcome to our webshop!</h1>
       <ul className="category-list">
-        {user ? (
-          <>
-            <Link to="/Profile">Profile</Link>
-            {renderCategoryLinks()}
-          </>
-        ) : (
-          <>
-            <Link to="/Login">Login</Link> 
-            <Link to="/Registration">Register</Link>
-            {renderCategoryLinks()}
-          </>
-        )}
+        {renderCategoryLinks()}
       </ul>
     </div>
   );
