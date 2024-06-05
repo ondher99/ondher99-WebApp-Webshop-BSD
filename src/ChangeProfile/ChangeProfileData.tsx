@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import React, { ChangeEvent, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, getUsers } from '../Profile/UserContext';
 import { ToastContainer, toast } from 'react-toastify';
@@ -49,11 +49,13 @@ const ChangeProfileDataForm = () => {
 
     const { user, setUser } = useUser();
     const navigate = useNavigate();
+    const [isLoading, setIsLoading] = useState(!user);
     const [formState, setFormState] = useState<IFormState>(initialFormState);
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [taxNumberError, setTaxNumberError] = useState('');
     
-      const fetchAndUpdateUserData = useCallback(async () => {
+    /*
+      const fetchAndUpdateUserData = async () => {
         try {
           const userData = await getUsers();
           setUser(userData);
@@ -74,15 +76,39 @@ const ChangeProfileDataForm = () => {
             console.error('Failed to fetch user:', error);
           }
         }
-      }, [setUser, navigate]);
-    
+      };
+      */
+
       useEffect(() => {
         if (!user) {
-          fetchAndUpdateUserData();
+          setIsLoading(true);
+          getUsers()
+            .then(userData => {
+              setUser(userData);
+              setIsLoading(false);
+              const { firstName, lastName, shippingAddress, billingAddress } = userData;
+              setFormState({ firstName, lastName, shippingAddress, billingAddress });
+            })
+            .catch(error => {
+              console.error('Failed to fetch user:', error);
+              setIsLoading(false);
+              navigate('/login');
+            });
+        } else {
+          const { firstName, lastName, shippingAddress, billingAddress } = user;
+          setFormState({ firstName, lastName, shippingAddress, billingAddress });
         }
-      }, [setUser, user, navigate, fetchAndUpdateUserData]);
+      }, [navigate, setUser, user]);
     
-      const resetForm = () => fetchAndUpdateUserData();
+      function resetForm(){
+        getUsers()
+              .then(userData => {
+                setUser(userData);
+                setIsLoading(false);
+                const { firstName, lastName, shippingAddress, billingAddress } = userData;
+                setFormState({ firstName, lastName, shippingAddress, billingAddress });
+              })
+      }
 
     if (!user) {
       navigate("/")
