@@ -91,13 +91,6 @@ const ChangePasswordForm = () => {
         if (response.status === 204) {
             toast.success("Password changed successfully!");
             navigate('/')
-        } else if (response.status === 400) {
-            toast.error("Invalid data. Please check your inputs.");
-        } else if (response.status === 401) {
-            toast.error("Unauthorized. Please log in and try again.");
-            navigate('/login');
-        } else if (response.status === 409) {
-            toast.error("Old and new passwords cannot be the same.");
         } else {
             const errorData = await response.json();
             toast.error(errorData.message || "An unexpected error occurred.");
