@@ -118,7 +118,7 @@ function RegistrationForm() {
     }
 
     function validateEmail(inputEmail: string) {
-      const regex = /^\S+@\S+\.\S+$/;
+      const regex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
       if(!regex.test(inputEmail)){
           setEmailError('Invalid email format');
           return false;
@@ -147,9 +147,9 @@ function RegistrationForm() {
 
     const validatePhoneNumber = (phoneNumber: string) => {
       // This regular expression matches international phone numbers beginning with '+' follow by digits
-      const regex = /^\+[0-9]+$/;
+      const regex = /^\+\d{3,}$/;
       if (!regex.test(phoneNumber)) {
-          setPhoneNumberError('Invalid phone number format. It should start with a "+" and contain digits only.');
+          setPhoneNumberError('Invalid phone number format. It should start with a "+" and atleast 3 digits.');
       } else {
           setPhoneNumberError('');
       }
@@ -164,6 +164,24 @@ function RegistrationForm() {
         setTaxNumberError('Tax number must contain exactly 11 digits.');
       } else {
         setTaxNumberError(''); // Clear the error if the format is correct or the field is empty
+      }
+    };
+
+    const validateNameShipping = () => {
+      if (formState.shippingAddress.name.length === 1) {
+        setShippingNameError('Atleast 2 Characters!');
+      }
+      else {
+        return;
+      }
+    };
+
+    const validateNameBilling = () => {
+      if (formState.billingAddress.name.length === 1) {
+        setBillingNameError('Atleast 2 Characters!');
+      }
+      else {
+        return;
       }
     };
 
@@ -327,6 +345,10 @@ function RegistrationForm() {
       checkIfEmpty(formState.billingAddress.city, 'billingAddress.city');
       checkIfEmpty(formState.billingAddress.street, 'billingAddress.street');
       checkIfEmpty(formState.billingAddress.zip, 'billingAddress.zip');
+
+      validateNameShipping();
+      validateNameBilling();
+
   
       const canSubmit = Object.entries(formState).every(([fieldName, fieldValue]) => {
         const hasValue = typeof fieldValue === 'object'

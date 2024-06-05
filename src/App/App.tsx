@@ -1,7 +1,7 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomeScreen from '../HomeScreen/Home';
-import { UserContext, UserProvider } from '../Profile/UserContext';
+import { UserProvider } from '../Profile/UserContext';
 import LoginForm from "../Login/Login";
 import Profile from '../Profile/Profile';
 import ChangePasswordForm from "../ChangePassword/ChangePassword";

@@ -1,9 +1,9 @@
-import React, { useContext } from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import React from 'react';
+import { BrowserRouter as Router, Link } from 'react-router-dom';
 import { useUser } from '../Profile/UserContext';
 
 export const Navbar = () => {
-    const { user, logout } = useUser();
+    const { user } = useUser();
   
     return (
         <nav style={{ marginBottom: '20px' }}>
