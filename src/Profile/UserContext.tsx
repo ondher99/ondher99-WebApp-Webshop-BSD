@@ -26,6 +26,7 @@ interface User {
 type UserContextType = {
   user: User | null;
   setUser: React.Dispatch<React.SetStateAction<User | null>>;
+  logout: () => void;
 };
 
 export function getUsers() {
@@ -49,7 +50,8 @@ export function getUsers() {
     if (response.status === 200) {
       return response.json();
     } else {
-      throw new Error('Something went wrong on the api server!');
+      console.error('Something went wrong on the API server!');
+      return null;
     }
   })
   .then(data => {
@@ -62,7 +64,7 @@ export function getUsers() {
   });
 }
 
-const UserContext = createContext<UserContextType | undefined>(undefined);
+export const UserContext = createContext<UserContextType | undefined>(undefined);
 
 interface UserProviderProps {
   children: ReactNode;
@@ -70,6 +72,11 @@ interface UserProviderProps {
 
 export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('accessToken');
+  };
   
   useEffect(() => {
     const authtoken = localStorage.getItem('accessToken'); 
@@ -80,16 +87,16 @@ export const UserProvider: React.FC<UserProviderProps> = ({ children }) => {
     }
 
     getUsers()
-      .then(response => {
-        setUser(response); 
-      })
-      .catch(error => {
-        console.error("Failed to fetch user:", error);
-      });
+    .then(response => {
+      setUser(response);
+    })
+    .catch(error => {
+      console.error("Failed to fetch user:", error);
+    });
   }, []);
 
   return (
-    <UserContext.Provider value={{ user, setUser }}>
+    <UserContext.Provider value={{ user, setUser, logout }}>
       {children}
     </UserContext.Provider>
   );

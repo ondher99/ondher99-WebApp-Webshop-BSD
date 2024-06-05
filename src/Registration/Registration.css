@@ -6,17 +6,17 @@ div {
   
   form {
     display: flex;
-    flex-direction: column; /* makes everything align in a column */
+    flex-direction: column;
   }
   
   label {
-    margin: 10px 0; /* add some top and bottom margin to each label */
+    margin: 10px 0;
     line-height: 1.6;
   }
   
   input {
-    margin: 5px 0; /* add some top and bottom margin to each input */
-    padding: 5px; /* add some padding around text in the input box */
+    margin: 5px 0;
+    padding: 5px;
     font-size: 1em;
   }
   

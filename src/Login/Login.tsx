@@ -10,8 +10,6 @@ const LoginForm = () => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
   const [loginError, setLoginError] = useState('');
-  const [isEmailValid, setIsEmailValid] = useState(false);  // State to track if email is valid
-  const [isPasswordValid, setIsPasswordValid] = useState(false); // State to track if password is valid
   const [isSubmitAttempted, setIsSubmitAttempted] = useState(false);
   const [formError, setFormError] = useState('');
 
@@ -27,11 +25,9 @@ const LoginForm = () => {
     return result;
   };
 
-  // On component mount, check if the user is already logged in
   useEffect(() => {
     const token = localStorage.getItem('accessToken');
     if (token) {
-      // Assuming getUsers will set the user profile based on the token
       getUsers().then((userData) => {
         setUser(userData);
         navigate('/profile'); // Redirect to profile page
@@ -40,36 +36,18 @@ const LoginForm = () => {
       });
     }
   }, [navigate, setUser]);
-
-  function handleValidation () {
-    // Check and show field required messages upon submit attempt
-    const emailValid = validateEmail(username);
-    const passwordValid = ValidatePassword(password);
-    return emailValid && passwordValid;
-  }
-
   function validateEmail(inputEmail: string) {
     const regex = /^\S+@\S+\.\S+$/;
-    if(!regex.test(inputEmail)){
-        setEmailError('Invalid email format');
-        setIsEmailValid(false);  // Email is not valid
-        return isEmailValid;
-    }
-    setEmailError('');
-    setIsEmailValid(true);  // Email is valid
-    return isEmailValid;
+    const isValid = regex.test(inputEmail);
+    setEmailError(isValid ? '' : 'Invalid email format');
+    return isValid;
   }
 
-  function ValidatePassword(inputPassword: string) {
-    const regex = /^(?=.*[a-z])(?=.*\d)[a-zA-Z\d]{8,}$/;
-    if(!regex.test(inputPassword)){
-      setPasswordError('Invalid password format');
-      setIsPasswordValid(false);  // Password is not valid
-      return isPasswordValid;
-    }
-    setPasswordError('');
-    setIsPasswordValid(true);  // Password is valid
-    return isPasswordValid;
+  function validatePassword(inputPassword: string) {
+    const regex = /^(?=.*[a-z])(?=.*\d).{8,}$/;
+    const isValid = regex.test(inputPassword);
+    setPasswordError(isValid ? '' : 'Password must be at least 8 characters long with at least 1 number and 1 lower case letter');
+    return isValid;
   }
 
   interface LoginData {
@@ -103,20 +81,20 @@ const LoginForm = () => {
     }
   }
 
-  // onSubmit handler remains the same
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setIsSubmitAttempted(true); // User attempted to submit the form
+    setIsSubmitAttempted(true);
 
     if (!checkRequiredFields()) {
-      // If any required field is empty, stop form submission
       setFormError('Please fill all fields before submitting.');
       return;
     }
 
-    if (!handleValidation()) {
+    const isEmailValid = validateEmail(username);
+    const isPasswordValid = validatePassword(password);
+
+    if (!isEmailValid || !isPasswordValid) {
       setLoginError('Enter correct email and password!');
-      // Stop the submit if validation fails
       return;
     }
 
@@ -128,11 +106,10 @@ const LoginForm = () => {
     try {
       const response = await loginUser(payload);
 
-      // Save the access token in localStorage if it exists in the response
       if (response.accessToken) {
         localStorage.setItem('accessToken', response.accessToken);
-        // Fetch the user data
         const userData = await getUsers();
+        console.log(userData);
 
         if (userData) {
           setUser(userData);
@@ -165,13 +142,13 @@ const LoginForm = () => {
           Password:
           <input type="password" name="password" value={password} 
           onChange={e => setPassword(e.target.value)} 
-          onBlur={e => {ValidatePassword(e.target.value)}}/>
+          onBlur={e => {validatePassword(e.target.value)}}/>
         </label>
         {(isSubmitAttempted && !password) && <p style={{color: 'red'}}>Field required</p>}
         {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
         
         {formError && <div style={{ color: 'red' }}>{formError}</div>}
-        {loginError && <p className="login-error">{loginError}</p>}
+        {loginError && <p style={{ color: 'red' }} className="login-error">{loginError}</p>}
 
         <button type="submit" >Login</button>
       </form>

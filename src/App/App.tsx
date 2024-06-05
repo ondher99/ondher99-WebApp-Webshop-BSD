@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import HomeScreen from '../HomeScreen/Home';
 import { UserProvider } from '../Profile/UserContext';
 import LoginForm from "../Login/Login";
@@ -8,17 +8,15 @@ import ChangePasswordForm from "../ChangePassword/ChangePassword";
 import ChangeProfileDataForm from "../ChangeProfile/ChangeProfileData";
 import RegistrationForm from "../Registration/Registration";
 import CategoryPage from "../views/Product/CategoryPage";
+import { Navbar } from '../Navbar/Navbar'
 
 const App = () => {
+
   return (
     <UserProvider>
       <Router>
         <div>
-          <nav style={{ marginBottom: '20px' }}>
-            <ul style={{ listStyleType: 'none', padding: 0, display: 'flex', gap: '20px' }}>
-              <li><Link to="/">Home</Link></li>
-            </ul>
-          </nav>
+          <Navbar />
           <Routes>
             <Route path="/" element={<HomeScreen/>} />
             <Route path="/Login" element={<LoginForm />} />
