@@ -260,6 +260,18 @@ function RegistrationForm() {
         setPhoneNumberError('');
         setTaxNumberError('');
         setUserError('');
+        setFirstNameError('');
+        setLastNameError('');
+        setShippingNameError('');
+        setShippingCountryError('');
+        setShippingCityError('');
+        setShippingStreetError('');
+        setShippingZipError('');
+        setBillingNameError('');
+        setBillingCountryError('');
+        setBillingCityError('');
+        setBillingStreetError('');
+        setBillingZipError('');
     };
 
     // Copy shipping address to billing address
@@ -307,6 +319,18 @@ function RegistrationForm() {
       setPhoneNumberError('');
       setTaxNumberError('');
       setUserError('');
+      setFirstNameError('');
+        setLastNameError('');
+        setShippingNameError('');
+        setShippingCountryError('');
+        setShippingCityError('');
+        setShippingStreetError('');
+        setShippingZipError('');
+        setBillingNameError('');
+        setBillingCountryError('');
+        setBillingCityError('');
+        setBillingStreetError('');
+        setBillingZipError('');
     
       // Run all field validations again before submitting
       const isEmailValid = validateEmail(formState.username);

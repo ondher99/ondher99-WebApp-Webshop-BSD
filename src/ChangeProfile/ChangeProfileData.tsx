@@ -53,32 +53,57 @@ const ChangeProfileDataForm = () => {
     const [formState, setFormState] = useState<IFormState>(initialFormState);
     const [phoneNumberError, setPhoneNumberError] = useState('');
     const [taxNumberError, setTaxNumberError] = useState('');
+    const [firstNameError, setFirstNameError] = useState('');
+    const [lastNameError, setLastNameError] = useState('');
     
-    /*
-      const fetchAndUpdateUserData = async () => {
-        try {
-          const userData = await getUsers();
-          setUser(userData);
-          setFormState({
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            shippingAddress: userData.shippingAddress,
-            billingAddress: userData.billingAddress,
-          });
-        } catch (error) {
-          if (error instanceof Error && error.message.includes('401')) {
-            toast.error('Your session has expired. Please log in again.');
-            setUser(null);
-            localStorage.removeItem('accessToken');
-            navigate('/login');
-          } else {
-            toast.error('An error occurred while fetching profile data.');
-            console.error('Failed to fetch user:', error);
-          }
-        }
-      };
-      */
+    // Shipping address errors
+    const [shippingNameError, setShippingNameError] = useState('');
+    const [shippingCountryError, setShippingCountryError] = useState('');
+    const [shippingCityError, setShippingCityError] = useState('');
+    const [shippingStreetError, setShippingStreetError] = useState('');
+    const [shippingZipError, setShippingZipError] = useState('');
+    
+    // Billing address errors
+    const [billingNameError, setBillingNameError] = useState('');
+    const [billingCountryError, setBillingCountryError] = useState('');
+    const [billingCityError, setBillingCityError] = useState('');
+    const [billingStreetError, setBillingStreetError] = useState('');
+    const [billingZipError, setBillingZipError] = useState('');
 
+    type FieldErrorSetterMap = {
+      [key: string]: React.Dispatch<React.SetStateAction<string>>;
+    };
+
+    const fieldErrorSetters: FieldErrorSetterMap = {
+      firstName: setFirstNameError,
+      lastName: setLastNameError,
+      'shippingAddress.name': setShippingNameError,
+      'shippingAddress.country': setShippingCountryError,
+      'shippingAddress.city': setShippingCityError,
+      'shippingAddress.street': setShippingStreetError,
+      'shippingAddress.zip': setShippingZipError,
+      'billingAddress.name': setBillingNameError,
+      'billingAddress.country': setBillingCountryError,
+      'billingAddress.city': setBillingCityError,
+      'billingAddress.street': setBillingStreetError,
+      'billingAddress.zip': setBillingZipError,
+    };
+
+    const checkIfEmpty = (fieldValue: string, fieldName: string) => {
+      const setError = fieldErrorSetters[fieldName];
+
+      if (typeof setError !== 'function') {
+        console.error(`setError is not a function for fieldName: ${fieldName}`);
+        return;
+      }
+
+      if (!fieldValue.trim()) {
+        setError(`${fieldName.replace(/\./g, ' ')} is required!`);
+      } else {
+        setError(''); // Clear the error if the field is not empty
+      }
+    };
+    
       useEffect(() => {
         if (!user) {
           setIsLoading(true);
@@ -195,20 +220,56 @@ const ChangeProfileDataForm = () => {
       return;
     }
 
-    try {
-      const response = await changeData(formData);
-      console.log(response);
-      // If the change was successful, update the user data or show a success message
-      const userData = await getUsers();
-      if (userData) {
-        setUser(userData);
-        navigate('/profile');
-      } else {
-        toast.error('No user data received');
+    checkIfEmpty(formState.firstName, 'firstName');
+      checkIfEmpty(formState.lastName, 'lastName');
+      
+      // Nested fields of shippingAddress
+      checkIfEmpty(formState.shippingAddress.name, 'shippingAddress.name');
+      checkIfEmpty(formState.shippingAddress.country, 'shippingAddress.country');
+      checkIfEmpty(formState.shippingAddress.city, 'shippingAddress.city');
+      checkIfEmpty(formState.shippingAddress.street, 'shippingAddress.street');
+      checkIfEmpty(formState.shippingAddress.zip, 'shippingAddress.zip');
+      
+      // Nested fields of billingAddress
+      checkIfEmpty(formState.billingAddress.name, 'billingAddress.name');
+      checkIfEmpty(formState.billingAddress.country, 'billingAddress.country');
+      checkIfEmpty(formState.billingAddress.city, 'billingAddress.city');
+      checkIfEmpty(formState.billingAddress.street, 'billingAddress.street');
+      checkIfEmpty(formState.billingAddress.zip, 'billingAddress.zip');
+
+      const canSubmit = Object.entries(formState).every(([fieldName, fieldValue]) => {
+        const hasValue = typeof fieldValue === 'object'
+          ? Object.values(fieldValue as Record<string, string>).every(value => value.trim() !== '')  // For nested objects like addresses
+          : fieldValue.trim() !== '';  // For top-level fields like username
+        
+        if (!hasValue) {
+          const setError = fieldErrorSetters[fieldName];
+          if(setError) {
+            setError(fieldName + ' is required');
+          }
+        }
+        
+        return hasValue;
+      }) &&
+        phoneNumberError === "" && // Phone number validation has passed
+        taxNumberError === ""; // Tax number validation has passed or the field is empty
+
+    if(canSubmit) {
+      try {
+        const response = await changeData(formData);
+        console.log(response);
+        // If the change was successful, update the user data or show a success message
+        const userData = await getUsers();
+        if (userData) {
+          setUser(userData);
+          navigate('/profile');
+        } else {
+          toast.error('No user data received');
+        }
+      } catch (error) {
+        console.error('There was an error:', error);
+        toast.error('Failed to update profile');
       }
-    } catch (error) {
-      console.error('There was an error:', error);
-      toast.error('Failed to update profile');
     }
   };
 
@@ -238,15 +299,24 @@ const ChangeProfileDataForm = () => {
     <div>
       <form id="DataChangeForm" onSubmit={submitForm} onReset={resetForm}>
         <h2>Update Profile Data</h2>
-        <label>First Name: <input type='text' name='firstName' value={formState.firstName} onChange={handleInputChange} required /></label>
-        <label>Last Name: <input type='text' name='lastName' value={formState.lastName} onChange={handleInputChange} required /></label>
+        <label>First Name*: <input type='text' name='firstName' value={formState.firstName} onChange={handleInputChange}/></label>
+          {firstNameError && <p style={{color: 'red'}}>{firstNameError}</p>}
+          
+          <label>Last Name*: <input type='text' name='lastName' value={formState.lastName} onChange={handleInputChange}/></label>
+          {lastNameError && <p style={{color: 'red'}}>{lastNameError}</p>}
 
         <h3>Shipping Address</h3>
-        <label>Shipping Address - Name: <input type='text' name='shippingAddress.name' value={formState.shippingAddress.name} onChange={handleInputChange} required /></label>
-        <label>Country: <input type='text' name='shippingAddress.country' value={formState.shippingAddress.country} onChange={handleInputChange} required /></label>
-        <label>City: <input type='text' name='shippingAddress.city' value={formState.shippingAddress.city} onChange={handleInputChange} required /></label>
-        <label>Street: <input type='text' name='shippingAddress.street' value={formState.shippingAddress.street} onChange={handleInputChange} required /></label>
-        <label>Zip: <input type='text' name='shippingAddress.zip' value={formState.shippingAddress.zip} onChange={handleInputChange} required /></label>
+        <label>Shipping Address - Name*: <input type='text' name='shippingAddress.name' value={formState.shippingAddress.name} onChange={handleInputChange}/></label>
+          {shippingNameError && <p style={{color: 'red'}}>{shippingNameError}</p>}
+          <label>Country*: <input type='text' name='shippingAddress.country' value={formState.shippingAddress.country} onChange={handleInputChange}/></label>
+          {shippingCountryError && <p style={{color: 'red'}}>{shippingCountryError}</p>}
+          <label>City*: <input type='text' name='shippingAddress.city' value={formState.shippingAddress.city} onChange={handleInputChange}/></label>
+          {shippingCityError && <p style={{color: 'red'}}>{shippingCityError}</p>}
+          <label>Street*: <input type='text' name='shippingAddress.street' value={formState.shippingAddress.street} onChange={handleInputChange}/></label>
+          {shippingStreetError && <p style={{color: 'red'}}>{shippingStreetError}</p>}
+          <label>Zip*: <input type='text' name='shippingAddress.zip' value={formState.shippingAddress.zip} onChange={handleInputChange}/></label>
+          {shippingZipError && <p style={{color: 'red'}}>{shippingZipError}</p>}
+
         <label>Phone Number: <input
           type='text'
           name='shippingAddress.phoneNumber'
@@ -256,11 +326,16 @@ const ChangeProfileDataForm = () => {
           </label>
           {phoneNumberError && <p style={{color: 'red'}}>{phoneNumberError}</p>}
         <h3>Billing Address</h3>
-        <label>Billing Address - Name: <input type='text' name='billingAddress.name' value={formState.billingAddress.name} onChange={handleInputChange} required /></label>
-        <label>Country: <input type='text' name='billingAddress.country' value={formState.billingAddress.country} onChange={handleInputChange} required /></label>
-        <label>City: <input type='text' name='billingAddress.city' value={formState.billingAddress.city} onChange={handleInputChange} required /></label>
-        <label>Street: <input type='text' name='billingAddress.street' value={formState.billingAddress.street} onChange={handleInputChange} required /></label>
-        <label>Zip: <input type='text' name='billingAddress.zip' value={formState.billingAddress.zip} onChange={handleInputChange} required /></label>
+        <label>Billing Address - Name*: <input type='text' name='billingAddress.name' value={formState.billingAddress.name} onChange={handleInputChange}/></label>
+          {billingNameError && <p style={{color: 'red'}}>{billingNameError}</p>}
+          <label>Country*: <input type='text' name='billingAddress.country' value={formState.billingAddress.country} onChange={handleInputChange}/></label>
+          {billingCountryError && <p style={{color: 'red'}}>{billingCountryError}</p>}
+          <label>City*: <input type='text' name='billingAddress.city' value={formState.billingAddress.city} onChange={handleInputChange}/></label>
+          {billingCityError && <p style={{color: 'red'}}>{billingCityError}</p>}
+          <label>Street*: <input type='text' name='billingAddress.street' value={formState.billingAddress.street} onChange={handleInputChange}/></label>
+          {billingStreetError && <p style={{color: 'red'}}>{billingStreetError}</p>}
+          <label>Zip*: <input type='text' name='billingAddress.zip' value={formState.billingAddress.zip} onChange={handleInputChange}/></label>
+          {billingZipError && <p style={{color: 'red'}}>{billingZipError}</p>}
         <label>Tax Number: <input
           type='text'
           name='billingAddress.taxNumber'
