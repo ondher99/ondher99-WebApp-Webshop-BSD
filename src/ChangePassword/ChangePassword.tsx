@@ -9,7 +9,30 @@ const ChangePasswordForm = () => {
     const [oldPassword, checkOldPassword] = useState('');
     const [password, newPassword] = useState('');
     const [passwordConfirm, confirmNewPassword] = useState('');
+    const [oldpasswordError, setOldPasswordError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [passwordEmptyError, setPassworEmptydError] = useState('');
+    const [passwordConfirmError, setPasswordConfirmError] = useState('');
+
+    type FieldErrorSetterMap = {
+        [key: string]: React.Dispatch<React.SetStateAction<string>>;
+    };
+
+    const fieldErrorSetters: FieldErrorSetterMap = {
+        oldPassword: setOldPasswordError,
+        password: setPassworEmptydError,
+        passwordConfirm: setPasswordConfirmError,
+    };
+
+    const checkIfEmpty = (fieldValue: string, fieldName: string) => {
+        const setError = fieldErrorSetters[fieldName];
+  
+        if (!fieldValue.trim()) {
+          setError(`${fieldName.replace(/\./g, ' ')} is required!`);
+        } else {
+          setError(''); // Clear the error if the field is not empty
+        }
+    };
 
     const validatePasswords = () => {
         // Check all password fields
@@ -23,6 +46,7 @@ const ChangePasswordForm = () => {
         }
 
         if (!isPasswordConfirmed) {
+            setPasswordConfirmError('Passwords do not match!')
             toast.error("New password and confirmation do not match.");
             return false;
         }
@@ -37,6 +61,12 @@ const ChangePasswordForm = () => {
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
+        setPasswordError('');
+        setPasswordConfirmError('');
+
+        checkIfEmpty(oldPassword, 'oldPassword');
+        checkIfEmpty(password, 'password');
+        checkIfEmpty(passwordConfirm, 'passwordConfirm');
 
         if(!validatePasswords()) {
             return; // Stop submission if validation fails
@@ -63,10 +93,10 @@ const ChangePasswordForm = () => {
         if(!regex.test(inputPassword)){
           setPasswordError('Invalid password format');
           return false;
-      }
+        }
 
-    setPasswordError('');
-    return true;
+        setPasswordError('');
+        return true;
     }
 
     interface passwordChangeData{
@@ -103,16 +133,20 @@ const ChangePasswordForm = () => {
             <form onSubmit={handleSubmit}>
                 <label>
                     Old Password:
-                   <input type="password" name="oldPassword" value={oldPassword} onChange={e => checkOldPassword(e.target.value)} onBlur={(e) => {ValidatePassword(e.target.value)}} required />
+                   <input type="password" name="oldPassword" value={oldPassword} onChange={e => checkOldPassword(e.target.value)} onBlur={(e) => {ValidatePassword(e.target.value)}}/>
                 </label>
+                {oldpasswordError && <p style={{color: 'red'}}>{oldpasswordError}</p>}
                 <label>
                     New Password:
-                    <input type="password" name="password" value={password} onChange={e => newPassword(e.target.value)} onBlur={(e) => {ValidatePassword(e.target.value)}} required />
+                    <input type="password" name="password" value={password} onChange={e => newPassword(e.target.value)} onBlur={(e) => {ValidatePassword(e.target.value)}}/>
                 </label>
+                {passwordEmptyError && <p style={{color: 'red'}}>{passwordEmptyError}</p>}
                 <label>
                     Confirm New Password:
-                    <input type="password" name="confirmPassword" value={passwordConfirm} onChange={e => confirmNewPassword(e.target.value)} onBlur={(e) => {ValidatePassword(e.target.value)}}  required />
+                    <input type="password" name="confirmPassword" value={passwordConfirm} onChange={e => confirmNewPassword(e.target.value)} onBlur={(e) => {ValidatePassword(e.target.value)}}/>
                 </label>
+                
+                {passwordConfirmError && <p style={{color: 'red'}}>{passwordConfirmError}</p>}
                 {passwordError && <p style={{color: 'red'}}>{passwordError}</p>}
                 <button type="submit">Confirm new password</button>
             </form>

@@ -78,32 +78,6 @@ function RegistrationForm() {
     const [billingStreetError, setBillingStreetError] = useState('');
     const [billingZipError, setBillingZipError] = useState('');
 
-    const checkRequiredFields = () => {
-
-      const requiredFields = [
-        formState.username,
-        formState.password,
-        formState.passwordConfirm,
-        formState.firstName,
-        formState.lastName,
-        formState.shippingAddress.name,
-        formState.shippingAddress.city,
-        formState.shippingAddress.country,
-        formState.shippingAddress.street,
-        formState.shippingAddress.zip,
-        formState.shippingAddress.phoneNumber,
-        formState.billingAddress.name,
-        formState.billingAddress.city,
-        formState.billingAddress.country,
-        formState.billingAddress.street,
-        formState.billingAddress.zip,
-      ];
-      
-      const result = requiredFields.every(field => field.trim() !== '');
-
-      return result;
-    };
-
     async function registerUser(registerdata: IFormState) {
       const myHeaders = new Headers({
           'Content-Type': 'application/json',
@@ -217,11 +191,6 @@ function RegistrationForm() {
 
     const checkIfEmpty = (fieldValue: string, fieldName: string) => {
       const setError = fieldErrorSetters[fieldName];
-
-      if (typeof setError !== 'function') {
-        console.error(`setError is not a function for fieldName: ${fieldName}`);
-        return;
-      }
 
       if (!fieldValue.trim()) {
         setError(`${fieldName.replace(/\./g, ' ')} is required!`);
@@ -378,11 +347,6 @@ function RegistrationForm() {
         passwordConfirmError === "" && // No mismatch error
         phoneNumberError === "" && // Phone number validation has passed
         taxNumberError === ""; // Tax number validation has passed or the field is empty
-
-      if (!checkRequiredFields) {
-        setFormError('Please fill all required fields!');
-        return;
-      }
     
       if (!canSubmit) {
         setFormError('Please correct the errors before submitting.');
