@@ -81,7 +81,7 @@ const ChangePasswordForm = () => {
             await changePassword(payload);            
         } catch (error) {
             if (error instanceof Error) {  
-                toast(`${error.message}`);
+                toast.error('Hibás régi jelszó');
             } else {
                 toast.error('Password change failed. Error unknown');
             }
@@ -123,7 +123,7 @@ const ChangePasswordForm = () => {
             navigate('/')
         } else {
             const errorData = await response.json();
-            toast.error(errorData.message || "An unexpected error occurred.");
+            toast.error("Hibás régi jelszó.");
         }
     }
 
