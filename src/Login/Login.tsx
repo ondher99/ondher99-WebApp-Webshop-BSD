@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUser, getUsers } from '../Profile/UserContext';
 
@@ -25,17 +25,6 @@ const LoginForm = () => {
     return result;
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    if (token) {
-      getUsers().then((userData) => {
-        setUser(userData);
-        navigate('/profile'); // Redirect to profile page
-      }).catch(error => {
-        console.log('Error fetching user data: ', error);
-      });
-    }
-  }, [navigate, setUser]);
   function validateEmail(inputEmail: string) {
     const regex = /^\S+@\S+\.\S+$/;
     const isValid = regex.test(inputEmail);
