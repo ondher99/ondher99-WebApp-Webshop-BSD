@@ -9,6 +9,7 @@ import ChangeProfileDataForm from "../ChangeProfile/ChangeProfileData";
 import RegistrationForm from "../Registration/Registration";
 import CategoryPage from "../views/Product/CategoryPage";
 import { Navbar } from '../Navbar/Navbar'
+import ProductPage from '../views/Product/ProductPage';
 
 const App = () => {
 
@@ -25,6 +26,7 @@ const App = () => {
             <Route path="/ChangePassword" element={<ChangePasswordForm />} />
             <Route path="/ChangeProfile" element={<ChangeProfileDataForm />} />
             <Route path="/products" element={<CategoryPage />} />
+            <Route path="/product/:productId" element={<ProductPage />} />
           </Routes>
         </div>
       </Router>

@@ -69,3 +69,19 @@ a {
   color: gold;
   font-size: 32px;
 }
+.category-container {
+  display: flex;
+  gap: 16px;
+}
+
+.category {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.category-image {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+}

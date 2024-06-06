@@ -2,6 +2,7 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 import "./category-page.css";
 import { Link } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 interface Product {
   id: string;
@@ -48,6 +49,23 @@ const CategoryPage = () => {
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(6);
+
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const queryParams = new URLSearchParams(location.search);
+    setSelectedCategory(queryParams.get("selectedCategory") || "");
+    setSelectedOrderBy(queryParams.get("selectedOrderBy") || "");
+    setQuery(queryParams.get("query") || "");
+    setMinPrice(Number(queryParams.get("minPrice")) || undefined);
+    setMaxPrice(Number(queryParams.get("maxPrice")) || undefined);
+    setInStock(queryParams.get("inStock") === "true");
+    setMinRate(Number(queryParams.get("minRate")) || undefined);
+    setMaxRate(Number(queryParams.get("maxRate")) || undefined);
+    setCurrentPage(Number(queryParams.get("currentPage")) || 1);
+    setLimit(Number(queryParams.get("limit")) || 6);
+  }, [location.search]);
 
   useEffect(() => {
     const fetchCategories = async () => {
@@ -99,11 +117,32 @@ const CategoryPage = () => {
         const response = await axios.get("http://localhost:5000/products", {
           params: params,
         });
+
         setData(response.data);
       } catch (error) {
         console.error(error);
       }
-    };
+
+      const queryParams = {
+        selectedCategory,
+        selectedOrderBy,
+        query,
+        minPrice: minPrice?.toString(),
+        maxPrice: maxPrice?.toString(),
+        inStock: inStock.toString(),
+        minRate: minRate?.toString(),
+        maxRate: maxRate?.toString(),
+        currentPage: currentPage.toString(),
+        limit: limit.toString(),
+      };
+
+      const definedQueryParams: Record<string, string> = Object.fromEntries(
+        Object.entries(queryParams).filter(([_, value]) => value !== undefined)
+      ) as Record<string, string>;
+
+      const newQueryParams = new URLSearchParams(definedQueryParams);
+      navigate(`${location.pathname}?${newQueryParams.toString()}`);
+      };
 
     fetchProducts();
   }, [
@@ -117,6 +156,8 @@ const CategoryPage = () => {
     maxRate,
     currentPage,
     limit,
+    location.pathname,
+    navigate,
   ]);
 
   const handleCategoryChange = (
@@ -271,7 +312,7 @@ const CategoryPage = () => {
           <div className="product-grid">
             {data.data.map((product) => (
               <div key={product.id} className="product">
-                <Link to={`/product/${product.name}`}>
+                <Link to={`/product/${product.id}`}>
                   <div className="product-info">
                     <div className="product-rating">
                       {"★".repeat(Math.round(product.rating))}
